@@ -1,0 +1,3 @@
+# in_demands and out_demands that lists all reactions that are not mass-balanced and have lower bounds below 0 and upper bounds above 0 respectively
+# some advanced exchange reactions function that catches all reactions that are not mass balanced, not only exchange reactions
+
