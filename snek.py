@@ -186,3 +186,71 @@ def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic
             y[n+1]=tmp_y
             f[n+1]=tmp_f
     return y,f
+
+def investigate_reaction(model,reaction_id,silent_metabolites=[]):
+    '''
+    Returns metabolites which are part of the reaction.
+    Exempt for metabolite ids listed in silent_metabolites.
+    '''
+    metabolite_list = []
+    for m in model.reactions.get_by_id(reaction_id).metabolites:
+        if m.id not in silent_metabolites:
+            metabolite_list.append(m.id)
+    
+    return metabolite_list
+
+def investigate_metabolite(model,metabolite_id,silent_reactions=[]):
+    '''
+    Returns reactions in which this metabolite is present.
+    Exempt for reaction ids listed in silent_reactions.
+    '''
+    reaction_list = []
+    for r in model.metabolites.get_by_id(metabolite_id).reactions:
+        if r.id not in silent_reactions:
+            reaction_list.append(r.id)
+    
+    return reaction_list
+
+def mimic_excel():
+    'Just creates some letters, Excel style.'
+    # https://stackoverflow.com/questions/63875471/enumerate-with-letters-instead-of-numbers
+    for i in range(0, 26):
+        yield chr(i + 65)
+
+    i, j = [0, 0]
+
+    for j in range(0, 26):
+        for i in range(0, 26):
+            yield "{}{}".format(chr(j + 65), chr(i + 65))
+            
+def investigate_network_solution(model,solution,start_reaction,depth,silent_reactions=[],silent_metabolites=['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']):
+    '''
+    The function you want to call ;)
+    
+    Input:
+        model                 cobrapy model
+        start_reaction        reaction_id of reaction of interest
+        depth                 reaction depth to investigate
+        silent_reactions      reactions you are not interested in for whatever reason
+        silent_metabolites    metabolites you are not interested in for whatever reason
+    Output:
+        None - Prints reactions and metabolites in the Network.
+    '''
+    reaction_list    = [start_reaction]
+    metabolite_list  = []
+    for i in range(1,depth+1):
+        new_reaction_list = []
+        for n,r in zip(mimic_excel(),reaction_list):
+            if r in silent_reactions:
+                pass
+            elif solution[r] == 0:
+                pass
+            else:
+                print('{:1}.{:3} {:17} ({:.5f})'.format(i,n,r,solution[r]))
+                metabolite_list = investigate_reaction(model,r,silent_metabolites)
+                silent_reactions.append(r)
+                for m in metabolite_list:
+                    print('      > {:15} ({:5})'.format(m,model.reactions.get_by_id(r).metabolites[model.metabolites.get_by_id(m)]))
+                    new_reaction_list += investigate_metabolite(model,m,silent_reactions)
+        reaction_list = set(new_reaction_list)
+    return
