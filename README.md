@@ -5,5 +5,5 @@ For more information just do
 
 ```
 import snek
-dir(snek).
+dir(snek)
 ``` 
