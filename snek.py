@@ -223,18 +223,19 @@ def mimic_excel():
         for i in range(0, 26):
             yield "{}{}".format(chr(j + 65), chr(i + 65))
             
-def investigate_network_solution(model,solution,start_reaction,depth,silent_reactions=[],silent_metabolites=['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']):
+def investigate_network_solution(model,solution,start_reaction,depth,silent_reactions=[],silent_metabolites = ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']):
     '''
-    The function you want to call ;)
+    See the enviroment of the Metabolic Network around a reaction of interest.
     
     Input:
         model                 cobrapy model
+        solution              a cobrapy model solution
         start_reaction        reaction_id of reaction of interest
         depth                 reaction depth to investigate
         silent_reactions      reactions you are not interested in for whatever reason
         silent_metabolites    metabolites you are not interested in for whatever reason
     Output:
-        None - Prints reactions and metabolites in the Network.
+        None - Prints reactions and metabolites in the network with non-zero flux in the solution object.
     '''
     reaction_list    = [start_reaction]
     metabolite_list  = []
@@ -247,6 +248,35 @@ def investigate_network_solution(model,solution,start_reaction,depth,silent_reac
                 pass
             else:
                 print('{:1}.{:3} {:17} ({:.5f})'.format(i,n,r,solution[r]))
+                metabolite_list = investigate_reaction(model,r,silent_metabolites)
+                silent_reactions.append(r)
+                for m in metabolite_list:
+                    print('      > {:15} ({:5})'.format(m,model.reactions.get_by_id(r).metabolites[model.metabolites.get_by_id(m)]))
+                    new_reaction_list += investigate_metabolite(model,m,silent_reactions)
+        reaction_list = set(new_reaction_list)
+    return
+
+def investigate_network(model,start_reaction,depth,silent_reactions = [],silent_metabolites = ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']):
+    '''
+    See the enviroment of the Metabolic Network around a reaction of interest.
+    
+    Input:
+        model                 cobrapy model
+        start_reaction        reaction_id of reaction of interest
+        depth                 reaction depth to investigate
+        silent_reactions      reactions you are not interested in for whatever reason
+        silent_metabolites    metabolites you are not interested in for whatever reason
+    Output:
+        None - Prints reactions and metabolites in the Network.    '''
+    reaction_list    = [start_reaction]
+    metabolite_list  = []
+    for i in range(1,depth+1):
+        new_reaction_list = []
+        for n,r in zip(mimic_excel(),reaction_list):
+            if r in silent_reactions:
+                pass
+            else:
+                print('{:1}.{:3} {}'.format(i,n,r))
                 metabolite_list = investigate_reaction(model,r,silent_metabolites)
                 silent_reactions.append(r)
                 for m in metabolite_list:
