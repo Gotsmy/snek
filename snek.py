@@ -1,22 +1,15 @@
 import cobra
-import matplotlib.pyplot as plt
 import numpy as np
-
-# snek_v4
-# added pfba_carbon_fluxes
-# to do: 
-	# create in and out_demands where upper and lower bound are below or above 0
-	# loop over all reactions that are not mass balanced, not only exchange reactions
 
 def count_atom(formula,atom):
     """
     Counts the atoms in a chemical formula. 
     Works with multiple-letter atom names and floats. 
     Case sensitive!
-    Input:  
+    INPUT  
         formula    Chemical Formula, e.g. H2O
         atom       Atom name, e.g. H
-    Output: 
+    RETURNS 
         Number of atoms as float, e.g. 2.0
     """
     found = 0
@@ -141,7 +134,7 @@ def pfba_carbon_fluxes(model):
     return c_fluxes
 
 def michaelis_menten(c,vmax,km):
-    """returns v. be aware of units!"""
+    """returns negative v. be aware of units!"""
     if c <= 0:
         v = 0
     else:
