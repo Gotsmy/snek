@@ -1,20 +1,20 @@
 import cobra
 import numpy as np
 
-def count_atom(formula,atom):
+def count_atom(formula,element):
     """
-    Counts the atoms in a chemical formula. 
-    Works with multiple-letter atom names and floats. 
+    Counts the number of atoms of an element in a chemical formula. 
+    Works with multiple-letter element names and floats. 
     Case sensitive!
     INPUT  
-        formula    Chemical Formula, e.g. H2O
-        atom       Atom name, e.g. H
+        formula    Chemical formula, e.g. H2O
+        element    Element name, e.g. H
     RETURNS 
         Number of atoms as float, e.g. 2.0
     """
     found = 0
-    while formula.find(atom) != -1:
-        idx = formula.find(atom)+len(atom)-1
+    while formula.find(element) != -1:
+        idx = formula.find(element)+len(element)-1
         tmp = ''
         for f in formula[idx+1:]:
             if f.isupper() == False:
