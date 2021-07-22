@@ -38,6 +38,53 @@ def count_atom(formula,element):
         nr = '0'
     return float(nr)
 
+def unique_elements(formula):
+    '''
+    Get a list of unique elements from a chemical formula.
+    INPUT
+        formula    chemical formula as string, e.g. 'H2O'
+    OUTPUT
+        list_elements    list of unique elements, e.g. ['H','O']
+    '''
+    
+    list_elements = []
+    
+    tmp = ''
+    for letter in formula:
+        if not letter.isnumeric():
+            if letter.isupper():
+                if len(tmp) > 0 and tmp not in list_elements:
+                    list_elements.append(tmp)
+                tmp = ''
+                tmp += letter
+            else:
+                tmp += letter
+            
+    if len(tmp) > 0 and tmp not in list_elements:
+        list_elements.append(tmp)
+    
+    return list_elements
+
+def element_composition(formula):
+    '''
+    Get the elemental composition of a molecule.
+    INPUT
+        formula    chemical formula as string, e.g. 'H2O'
+    OUTPUT
+        composition    dictionary with unique elements as keys
+                       and number of atoms per element as items,
+                       e.g. {'H': 2.0, 'O': 1.0}
+
+    '''
+
+    list_elements = unique_elements(formula)
+    composition  = {}
+    for element in list_elements:
+        composition[element] = count_atom(formula,element)
+
+    return composition
+
+
 def in_bounds(model):
     """ returns all exchange reactions with lower_bounds < 0  as dictionary """
     in_bnds ={}
