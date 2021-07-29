@@ -234,11 +234,14 @@ def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic
             f[n+1]=tmp_f
     return y,f
 
-def investigate_reaction(model,reaction_id,silent_metabolites=[]):
+def investigate_reaction(model,reaction_id,silent_metabolites=None):
     '''
     Returns metabolites which are part of the reaction.
-    Exempt for metabolite ids listed in silent_metabolites.
+    Exempt for metabolite ids listed in silent_metabolites 
+    (default: [}).
     '''
+    if silent_metabolites == None:
+        silent_metabolites = []
     metabolite_list = []
     for m in model.reactions.get_by_id(reaction_id).metabolites:
         if m.id not in silent_metabolites:
@@ -246,11 +249,14 @@ def investigate_reaction(model,reaction_id,silent_metabolites=[]):
     
     return metabolite_list
 
-def investigate_metabolite(model,metabolite_id,silent_reactions=[]):
+def investigate_metabolite(model,metabolite_id,silent_reactions=None):
     '''
     Returns reactions in which this metabolite is present.
-    Exempt for reaction ids listed in silent_reactions.
+    Exempt for reaction ids listed in silent_reactions
+    (default: []).
     '''
+    if silent_reactions == None:
+        silent_reactions = []
     reaction_list = []
     for r in model.metabolites.get_by_id(metabolite_id).reactions:
         if r.id not in silent_reactions:
@@ -270,7 +276,7 @@ def mimic_excel():
         for i in range(0, 26):
             yield "{}{}".format(chr(j + 65), chr(i + 65))
             
-def investigate_network_solution(model,solution,start_reaction,depth,silent_reactions=[],silent_metabolites = ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']):
+def investigate_network_solution(model, solution, start_reaction, depth, silent_reactions = None, silent_metabolites = None):
     '''
     See the enviroment of the Metabolic Network around a reaction of interest.
     
@@ -280,10 +286,18 @@ def investigate_network_solution(model,solution,start_reaction,depth,silent_reac
         start_reaction        reaction_id of reaction of interest
         depth                 reaction depth to investigate
         silent_reactions      reactions you are not interested in for whatever reason
+                              default: []
         silent_metabolites    metabolites you are not interested in for whatever reason
+                              default: ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']
     Output:
         None - Prints reactions and metabolites in the network with non-zero flux in the solution object.
     '''
+
+    if silent_reactions == None:
+        silent_reactions = []
+    if silent_metabolites == None:
+        silent_metabolites = ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']
+
     reaction_list    = [start_reaction]
     metabolite_list  = []
     for i in range(1,depth+1):
@@ -303,7 +317,7 @@ def investigate_network_solution(model,solution,start_reaction,depth,silent_reac
         reaction_list = set(new_reaction_list)
     return
 
-def investigate_network(model,start_reaction,depth,silent_reactions = [],silent_metabolites = ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']):
+def investigate_network(model,start_reaction,depth,silent_reactions = None,silent_metabolites = None):
     '''
     See the enviroment of the Metabolic Network around a reaction of interest.
     
@@ -312,9 +326,17 @@ def investigate_network(model,start_reaction,depth,silent_reactions = [],silent_
         start_reaction        reaction_id of reaction of interest
         depth                 reaction depth to investigate
         silent_reactions      reactions you are not interested in for whatever reason
+                              default: []
         silent_metabolites    metabolites you are not interested in for whatever reason
+                              default: ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']
     Output:
         None - Prints reactions and metabolites in the Network.    '''
+
+    if silent_reactions == None:
+        silent_reactions = []
+    if silent_metabolites == None:
+        silent_metabolites = ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']
+
     reaction_list    = [start_reaction]
     metabolite_list  = []
     for i in range(1,depth+1):
