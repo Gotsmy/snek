@@ -41,7 +41,9 @@ def set_bounds(model,reaction,lb=None,ub=None):
 
 def sensitive_optimize(model):
     '''
-    In contrast to the original implementation where fluxes can still be extracted from infeasible solutions (e.g. solution[reaction_id] = float, even if solution.status == 'infeasible'), this implementation returns a None object if the solver is infeasible.
+    In contrast to the original implementation where fluxes can still be extracted from
+    infeasible solutions (e.g. solution[reaction_id] = float, even if solution.status == 'infeasible'),
+    this implementation returns a None object if the solver is infeasible.
     -
     Input:
         model               cobrapy model
