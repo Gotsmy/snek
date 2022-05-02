@@ -1,5 +1,6 @@
 import cobra
 import numpy as np
+import snek_utils
 
 def count_atom(formula,element):
     """
@@ -111,22 +112,45 @@ def io_bounds(model,info=True):
             io_bnds[ex.id] = [ex.lower_bound,ex.upper_bound]
     return io_bnds
 
-def in_flux(model):
-    """ returns all exchange reactions with flux < 0  as dictionary """
+def in_flux(model,pFBA=True):
+    """ 
+    Returns all exchange reactions with flux < 0  as dictionary.
+    -
+    Input:
+        model    cobrapy model.
+        pFBA     If True a pFBA is performed to get fluxes. default = True.
+    Output:
+        in_flux  dictionary with all exchange reactions with flux < 0.
+    
+    """
+    
     in_flux = {}
-    solution = model.optimize()
+    if pFBA:
+        solution = cobra.flux_analysis.pfba(model)
+    else:
+        solution = snek_utils.sensitive_optimize(model)
     for ex in model.exchanges:
         if solution[ex.id] < 0:
             in_flux[ex.id] = solution[ex.id]
     return in_flux
 
-def out_flux(model):
+def out_flux(model,pFBA=True):
     """ 
     Returns all exchange reactions with flux > 0  as dictionary.
-    Fluxes are calculated from pFBA.
+    -
+    Input:
+        model    cobrapy model.
+        pFBA     If True a pFBA is performed to get fluxes. default = True.
+    Output:
+        out_flux dictionary with all exchange reactions with flux > 0.
+    
     """
+    
     out_flux = {}
-    solution = cobra.flux_analysis.pfba(model)
+    if pFBA:
+        solution = cobra.flux_analysis.pfba(model)
+    else:
+        solution = snek_utils.sensitive_optimize(model)
     for ex in model.exchanges:
         if solution[ex.id] > 0:
             out_flux[ex.id] = solution[ex.id]
