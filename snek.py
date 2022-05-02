@@ -121,9 +121,12 @@ def in_flux(model):
     return in_flux
 
 def out_flux(model):
-    """ returns all exchange reactions with flux > 0  as dictionary """
+    """ 
+    Returns all exchange reactions with flux > 0  as dictionary.
+    Fluxes are calculated from pFBA.
+    """
     out_flux = {}
-    solution = model.optimize()
+    solution = cobra.flux_analysis.pfba(model)
     for ex in model.exchanges:
         if solution[ex.id] > 0:
             out_flux[ex.id] = solution[ex.id]
