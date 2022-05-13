@@ -15,12 +15,12 @@ def set_objective(model,reaction,direction='max'):
     * -1000/   0 for minimization.
     -
     Input:
-        model       cobrapy model
-        reaction    objective ration ID
-        direction   objective direction. either 'min' or 'max'. default = 'max'
+        model       CobraPy Model
+        reaction    Str. Objective reaction ID.
+        direction   Str. Objective direction. either 'min' or 'max'. default = 'max'.
     -
     Output:
-        model       updated cobrapy model
+        model       Updated CobraPy Model.
     '''
     
     if model.reactions.get_by_id(reaction).upper_bound == 1000 and model.reactions.get_by_id(reaction).lower_bound == -1000:
@@ -36,16 +36,16 @@ def set_objective(model,reaction,direction='max'):
 
 def set_bounds(model,reaction,lb=None,ub=None):
     '''
-    Updates the bounds of a specific reaction.
+    Updates the bounds of a specific reaction. If None, the bounds are not changed.
     -
     Input: 
-        model       cobrapy model
-        reaction    String. Reaction ID
-        lb          Number. Lower bound, default = None
-        ub          Number. Upper bound, default = None
+        model       CobraPy Model.
+        reaction    Str. Reaction ID
+        lb          Num. Lower bound, default = None.
+        ub          Num. Upper bound, default = None.
     -
     Output:
-        model       updated cobrapy model
+        model       Updated CobraPy Model.
     '''
 
     if lb is None:
@@ -59,11 +59,11 @@ def set_bounds(model,reaction,lb=None,ub=None):
 def sensitive_optimize(model):
     '''
     In contrast to the original implementation where fluxes can still be extracted from
-    infeasible solutions (e.g. solution[reaction_id] = float, even if solution.status == 'infeasible'),
+    infeasible solutions (e.g. solution[reaction_id] = <float>, even if solution.status == 'infeasible'),
     this implementation returns a None object if the solver is infeasible.
     -
     Input:
-        model               cobrapy model
+        model               CobraPy Model.
     -
     Output:
         solution or None    Optimized solution if solution.status != 'infeasible', otherwise None.
