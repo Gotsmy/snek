@@ -1,5 +1,6 @@
 import cobra
 import numpy as np
+import pandas as pd
 import snek_utils
 
 def count_atom(formula,element):
@@ -7,11 +8,13 @@ def count_atom(formula,element):
     Counts the number of atoms of an element in a chemical formula. 
     Works with multiple-letter element names and floats. 
     Case sensitive!
-    INPUT  
-        formula    Chemical formula, e.g. H2O
-        element    Element name, e.g. H
-    RETURNS 
-        Number of atoms as float, e.g. 2.0
+    -
+    Input:
+        formula    Str. Chemical formula, e.g. 'H2O'.
+        element    Str. Element name, e.g. 'H'.
+    -
+    Output:
+        nr         Num. Number of atoms as float, e.g. 2.0
     """
     found = 0
     while formula.find(element) != -1:
@@ -42,10 +45,12 @@ def count_atom(formula,element):
 def unique_elements(formula):
     '''
     Get a list of unique elements from a chemical formula.
-    INPUT
-        formula    chemical formula as string, e.g. 'H2O'
-    OUTPUT
-        list_elements    list of unique elements, e.g. ['H','O']
+    -
+    Input:
+        formula    Str. Chemical formula, e.g. 'H2O'.
+    -
+    Output:
+        list_elements    List. List of unique elements, e.g. ['H','O'].
     '''
     
     list_elements = []
@@ -68,13 +73,16 @@ def unique_elements(formula):
 
 def element_composition(formula):
     '''
-    Get the elemental composition of a molecule.
-    INPUT
-        formula    chemical formula as string, e.g. 'H2O'
-    OUTPUT
-        composition    dictionary with unique elements as keys
+    Get the elemental composition of a molecule as dictionary. 
+    Keys correspond to elements, values to their number of appearance.
+    -
+    Input:
+        formula    Str. Chemical formula, e.g. 'H2O'.
+    -
+    Output:
+        composition    Dict. Dictionary with unique elements as keys
                        and number of atoms per element as items,
-                       e.g. {'H': 2.0, 'O': 1.0}
+                       e.g. {'H': 2.0, 'O': 1.0}.
 
     '''
 
@@ -85,6 +93,41 @@ def element_composition(formula):
 
     return composition
 
+def get_constrained_reactions(model):
+    '''
+    Returns data frames of all reactions that have constrained flux bounds.
+    I.e. something else than (lower bound, upper bound)
+    * -1000/1000,
+    *     0/1000, or
+    * -1000/   0.
+    -
+    Input:
+        model    CobraPy model.
+    -
+    Output:
+        constrained    DataFrame. Pandas data frame of constrained reactions with name, 
+                       id, lower bound, upper bound as columns.
+        blocked        DataFrame. Pandas data frame of constrained reactions with name, 
+                       id, lower bound, upper bound as columns.
+    '''
+    
+    constrained = []
+    blocked = []
+    for reaction in model.reactions:
+        if reaction.bounds == (0,1000):
+            pass
+        elif reaction.bounds == (-1000,1000):
+            pass
+        elif reaction.bounds == (-1000,0):
+            pass
+        elif reaction.bounds == (0,0):
+            blocked.append([reaction.name,reaction.id,*reaction.bounds])
+        else:
+            constrained.append([reaction.name,reaction.id,*reaction.bounds])    
+    blocked = pd.DataFrame(blocked,columns=['name','id','lower_bound','upper_bound'])
+    constrained = pd.DataFrame(constrained,columns=['name','id','lower_bound','upper_bound'])
+    
+    return constrained, blocked
 
 def in_bounds(model):
     """ returns all exchange reactions with lower_bounds < 0  as dictionary """
