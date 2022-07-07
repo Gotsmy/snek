@@ -1,7 +1,7 @@
 import cobra
 import numpy as np
 import pandas as pd
-import snek_utils
+from . import snek_utils
 
 def count_atom(formula,element):
     """
