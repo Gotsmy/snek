@@ -1,4 +1,3 @@
-import cobra
 import warnings
 '''
 The functions listed here are wrappers to important cobra functions that do additional checks:

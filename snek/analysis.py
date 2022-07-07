@@ -1,12 +1,12 @@
 import cobra
 import numpy as np
 import pandas as pd
-from . import snek_utils
+from .base import sensitive_optimize
 
 def count_atom(formula,element):
     """
-    Counts the number of atoms of an element in a chemical formula. 
-    Works with multiple-letter element names and floats. 
+    Counts the number of atoms of an element in a chemical formula.
+    Works with multiple-letter element names and floats.
     Case sensitive!
     -
     Input:
@@ -29,7 +29,7 @@ def count_atom(formula,element):
             nr = '1'
             found = 1
             break
-        
+
         elif tmp[0].islower() == False:
             nr = tmp
             found = 1
@@ -37,7 +37,7 @@ def count_atom(formula,element):
         else:
             found = 0
             formula = formula[idx+1:]
-            
+
     if found == 0:
         nr = '0'
     return float(nr)
@@ -52,9 +52,9 @@ def unique_elements(formula):
     Output:
         list_elements    List. List of unique elements, e.g. ['H','O'].
     '''
-    
+
     list_elements = []
-    
+
     tmp = ''
     for letter in formula:
         if not letter.isnumeric():
@@ -65,15 +65,15 @@ def unique_elements(formula):
                 tmp += letter
             else:
                 tmp += letter
-            
+
     if len(tmp) > 0 and tmp not in list_elements:
         list_elements.append(tmp)
-    
+
     return list_elements
 
 def element_composition(formula):
     '''
-    Get the elemental composition of a molecule as dictionary. 
+    Get the elemental composition of a molecule as dictionary.
     Keys correspond to elements, values to their number of appearance.
     -
     Input:
@@ -105,12 +105,12 @@ def get_constrained_reactions(model):
         model    CobraPy model.
     -
     Output:
-        constrained    DataFrame. Pandas data frame of constrained reactions with name, 
+        constrained    DataFrame. Pandas data frame of constrained reactions with name,
                        id, lower bound, upper bound as columns.
-        blocked        DataFrame. Pandas data frame of constrained reactions with name, 
+        blocked        DataFrame. Pandas data frame of constrained reactions with name,
                        id, lower bound, upper bound as columns.
     '''
-    
+
     constrained = []
     blocked = []
     for reaction in model.reactions:
@@ -123,10 +123,10 @@ def get_constrained_reactions(model):
         elif reaction.bounds == (0,0):
             blocked.append([reaction.name,reaction.id,*reaction.bounds])
         else:
-            constrained.append([reaction.name,reaction.id,*reaction.bounds])    
+            constrained.append([reaction.name,reaction.id,*reaction.bounds])
     blocked = pd.DataFrame(blocked,columns=['name','id','lower_bound','upper_bound'])
     constrained = pd.DataFrame(constrained,columns=['name','id','lower_bound','upper_bound'])
-    
+
     return constrained, blocked
 
 def in_bounds(model):
@@ -156,7 +156,7 @@ def io_bounds(model,info=True):
     return io_bnds
 
 def in_flux(model,pFBA=True):
-    """ 
+    """
     Returns all exchange reactions with flux < 0  as dictionary.
     -
     Input:
@@ -164,21 +164,21 @@ def in_flux(model,pFBA=True):
         pFBA     If True a pFBA is performed to get fluxes. default = True.
     Output:
         in_flux  dictionary with all exchange reactions with flux < 0.
-    
+
     """
-    
+
     in_flux = {}
     if pFBA:
         solution = cobra.flux_analysis.pfba(model)
     else:
-        solution = snek_utils.sensitive_optimize(model)
+        solution = sensitive_optimize(model)
     for ex in model.exchanges:
         if solution[ex.id] < 0:
             in_flux[ex.id] = solution[ex.id]
     return in_flux
 
 def out_flux(model,pFBA=True):
-    """ 
+    """
     Returns all exchange reactions with flux > 0  as dictionary.
     -
     Input:
@@ -186,14 +186,14 @@ def out_flux(model,pFBA=True):
         pFBA     If True a pFBA is performed to get fluxes. default = True.
     Output:
         out_flux dictionary with all exchange reactions with flux > 0.
-    
+
     """
-    
+
     out_flux = {}
     if pFBA:
         solution = cobra.flux_analysis.pfba(model)
     else:
-        solution = snek_utils.sensitive_optimize(model)
+        solution = sensitive_optimize(model)
     for ex in model.exchanges:
         if solution[ex.id] > 0:
             out_flux[ex.id] = solution[ex.id]
@@ -259,7 +259,7 @@ def michaelis_menten(c,vmax,km):
     return v
 
 def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic_constraints):
-    
+
     """ \nLexicographic Dynamic FBA\n
     INPUT
     \t compounds  : list of reactions to track with size n
@@ -268,21 +268,21 @@ def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic
     \t objectives : list of reactions to optimize with size m
     \t objectives_direction : list of direction of reactions to optimize ('max' or 'min') with size m
     \t dynamic_constraints  : list of lists in form of [['reaction_id',vmax,km],...]
-    
+
     RETURNS
     \t dict of tracked reaction concentrations
     \t dict of tracked reaction fluxes"""
-   
+
 
     y = {}
     f = {}
- 
+
     compounds = compounds # compound exchange reactions
     y[0] = y_zero # compound concentrations
     t0,tmax,dt = time # start time, max time, time step size
     objectives = objectives # list of reactions for objective function
     objectives_direction = objectives_direction # direction of objetives
-    
+
     stat = ''
     for n,t in enumerate(np.arange(t0,tmax,dt)):
         with model:
@@ -307,7 +307,7 @@ def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic
 def investigate_reaction(model,reaction_id,silent_metabolites=None):
     '''
     Returns metabolites which are part of the reaction.
-    Exempt for metabolite ids listed in silent_metabolites 
+    Exempt for metabolite ids listed in silent_metabolites
     (default: [}).
     '''
     if silent_metabolites == None:
@@ -316,7 +316,7 @@ def investigate_reaction(model,reaction_id,silent_metabolites=None):
     for m in model.reactions.get_by_id(reaction_id).metabolites:
         if m.id not in silent_metabolites:
             metabolite_list.append(m.id)
-    
+
     return metabolite_list
 
 def investigate_metabolite(model,metabolite_id,silent_reactions=None):
@@ -331,7 +331,7 @@ def investigate_metabolite(model,metabolite_id,silent_reactions=None):
     for r in model.metabolites.get_by_id(metabolite_id).reactions:
         if r.id not in silent_reactions:
             reaction_list.append(r.id)
-    
+
     return reaction_list
 
 def mimic_excel():
@@ -345,11 +345,11 @@ def mimic_excel():
     for j in range(0, 26):
         for i in range(0, 26):
             yield "{}{}".format(chr(j + 65), chr(i + 65))
-            
+
 def investigate_network_solution(model, solution, start_reaction, depth, silent_reactions = None, silent_metabolites = None):
     '''
     See the enviroment of the Metabolic Network around a reaction of interest.
-    
+
     Input:
         model                 cobrapy model
         solution              a cobrapy model solution
@@ -390,7 +390,7 @@ def investigate_network_solution(model, solution, start_reaction, depth, silent_
 def investigate_network(model,start_reaction,depth,silent_reactions = None,silent_metabolites = None):
     '''
     See the enviroment of the Metabolic Network around a reaction of interest.
-    
+
     Input:
         model                 cobrapy model
         start_reaction        reaction_id of reaction of interest
