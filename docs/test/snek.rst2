@@ -1,0 +1,19 @@
+Module contents
+---------------
+
+.. automodule:: snek
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Submodules
+----------
+
+snek.analysis Module
+--------------------
+
+.. automodule:: snek.analysis
+   :members:
+   :undoc-members:
+   :show-inheritance:

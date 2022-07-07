@@ -6,11 +6,15 @@
 Welcome to Snek's documentation!
 ================================
 
+.. include:: welcome.md
+   :parser: myst_parser.sphinx_
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   readme
+   snek
 
 Indices and tables
 ==================

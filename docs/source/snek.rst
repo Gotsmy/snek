@@ -1,29 +1,31 @@
-snek package
+Snek Package
 ============
 
 Submodules
 ----------
 
-snek.analysis module
+Core Module
+----------------
+
+The core module contains simple wrappers to important cobra functions that do additional checks:
+* ensuring correct spelling,
+* check for logical errors.
+The functions can be called with ``snek.<function>``.
+
+
+.. automodule:: snek.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Analysis Module
 --------------------
+
+A module with more specialized functions to investigate CobraPy models and to look at fluxes.
+
 
 .. automodule:: snek.analysis
    :members:
    :undoc-members:
    :show-inheritance:
 
-snek.snek\_utils module
------------------------
-
-.. automodule:: snek.snek_utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: snek
-   :members:
-   :undoc-members:
-   :show-inheritance:
