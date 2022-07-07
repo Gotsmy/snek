@@ -11,12 +11,12 @@ Welcome to Snek's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
    readme
    snek
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`

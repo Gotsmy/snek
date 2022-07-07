@@ -3,7 +3,7 @@
 Snek provides quality of Life Functions for CobraPy.
 
 
-## Base Module
+## Core Module
 
 Simple wrappers to important cobra functions that do additional checks:
 * ensuring correct spelling,

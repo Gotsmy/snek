@@ -1,20 +1,25 @@
 import cobra
 import numpy as np
 import pandas as pd
-from .base import sensitive_optimize
+from .core import sensitive_optimize
 
 def count_atom(formula,element):
     """
     Counts the number of atoms of an element in a chemical formula.
     Works with multiple-letter element names and floats.
     Case sensitive!
-    -
-    Input:
-        formula    Str. Chemical formula, e.g. 'H2O'.
-        element    Str. Element name, e.g. 'H'.
-    -
-    Output:
-        nr         Num. Number of atoms as float, e.g. 2.0
+
+    Parameters
+    ----------
+        formula  :  Str
+                    Chemical formula, e.g. ``'H2O'``.
+        element  :  Str
+                    Element name, e.g. ``'H'``.
+
+    Returns
+    -------
+        nr       :  float
+                    Number of atoms as float, e.g. ``2.0``.
     """
     found = 0
     while formula.find(element) != -1:
@@ -45,12 +50,16 @@ def count_atom(formula,element):
 def unique_elements(formula):
     '''
     Get a list of unique elements from a chemical formula.
-    -
-    Input:
-        formula    Str. Chemical formula, e.g. 'H2O'.
-    -
-    Output:
-        list_elements    List. List of unique elements, e.g. ['H','O'].
+
+    Parameters
+    ----------
+        formula   : Str
+                    Chemical formula, e.g. ``'H2O'``.
+
+    Returns
+    -------
+        list_elements :  List
+                         List of unique elements, e.g. ``['H','O']``.
     '''
 
     list_elements = []
@@ -75,14 +84,18 @@ def element_composition(formula):
     '''
     Get the elemental composition of a molecule as dictionary.
     Keys correspond to elements, values to their number of appearance.
-    -
-    Input:
-        formula    Str. Chemical formula, e.g. 'H2O'.
-    -
-    Output:
-        composition    Dict. Dictionary with unique elements as keys
-                       and number of atoms per element as items,
-                       e.g. {'H': 2.0, 'O': 1.0}.
+
+    Parameters
+    ----------
+        formula  :  Str
+                    Chemical formula, e.g. ``'H2O'``.
+
+    Returns
+    -------
+        composition :   Dict
+                        Dictionary with unique elements as keys
+                        and number of atoms per element as items,
+                        e.g. ``{'H': 2.0, 'O': 1.0}``.
 
     '''
 
@@ -97,18 +110,24 @@ def get_constrained_reactions(model):
     '''
     Returns data frames of all reactions that have constrained flux bounds.
     I.e. something else than (lower bound, upper bound)
+
     * -1000/1000,
     *     0/1000, or
     * -1000/   0.
-    -
-    Input:
-        model    CobraPy model.
-    -
-    Output:
-        constrained    DataFrame. Pandas data frame of constrained reactions with name,
-                       id, lower bound, upper bound as columns.
-        blocked        DataFrame. Pandas data frame of constrained reactions with name,
-                       id, lower bound, upper bound as columns.
+
+    Parameters
+    ----------
+        model   : cobra.core.model.Model
+                  CobraPy model.
+
+    Returns
+    -------
+        constrained  :  pandas.DataFrame
+                        Pandas data frame of constrained reactions with name,
+                        id, lower bound, upper bound as columns.
+        blocked      :  pandas.DataFrame
+                        Pandas data frame of constrained reactions with name,
+                        id, lower bound, upper bound as columns.
     '''
 
     constrained = []
@@ -130,7 +149,20 @@ def get_constrained_reactions(model):
     return constrained, blocked
 
 def in_bounds(model):
-    """ returns all exchange reactions with lower_bounds < 0  as dictionary """
+    """
+    Returns all exchange reactions with lower_bounds < 0  as dictionary.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+            CobraPy Model.
+
+    Returns
+    -------
+    in_bnds : Dict
+              Dictionary of all exchange reactions that have lower bounds lower than 0.
+
+    """
     in_bnds ={}
     for ex in model.exchanges:
         if ex.lower_bound != 0:
@@ -138,7 +170,20 @@ def in_bounds(model):
     return in_bnds
 
 def out_bounds(model):
-    """ returns all exchange reactions with lower_bounds > 0  as dictionary """
+    """
+    Returns all exchange reactions with lower_bounds > 0  as dictionary.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+            CobraPy Model.
+
+    Returns
+    -------
+    out_bnds : Dict
+              Dictionary of all exchange reactions that have lower bounds greater than 0.
+
+    """
     out_bnds ={}
     for ex in model.exchanges:
         if ex.upper_bound != 0:
@@ -146,7 +191,22 @@ def out_bounds(model):
     return out_bnds
 
 def io_bounds(model,info=True):
-    """ returns all exchange reactions that have non 0 input and their output bounds """
+    """Returns all exchange reactions that have non 0 input and their output bounds
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+            CobraPy Model.
+    info :  Bool, default=True
+            If True prints the name of variables in output list.
+
+    Returns
+    -------
+    io_bnds : Dict
+              Dictionary of exchange reactions with non-zero lower bound in the form of
+              ``io_bnds[<reaction_id>] = [<lower bound>,<upper bound>]``.
+
+    """
     io_bnds ={}
     if info == True:
         print('[lower_bound,upper_bound]')
@@ -158,12 +218,18 @@ def io_bounds(model,info=True):
 def in_flux(model,pFBA=True):
     """
     Returns all exchange reactions with flux < 0  as dictionary.
-    -
-    Input:
-        model    cobrapy model.
-        pFBA     If True a pFBA is performed to get fluxes. default = True.
-    Output:
-        in_flux  dictionary with all exchange reactions with flux < 0.
+
+    Parameters
+    ----------
+        model    : cobra.core.model.Model
+                   Cobrapy model.
+        pFBA     : Bool, default=True
+                   If True a pFBA is performed to get fluxes, else FBA.
+
+    Returns
+    -------
+        in_flux : Dict
+                  Dictionary with all exchange reactions with flux < 0.
 
     """
 
@@ -180,12 +246,18 @@ def in_flux(model,pFBA=True):
 def out_flux(model,pFBA=True):
     """
     Returns all exchange reactions with flux > 0  as dictionary.
-    -
-    Input:
-        model    cobrapy model.
-        pFBA     If True a pFBA is performed to get fluxes. default = True.
-    Output:
-        out_flux dictionary with all exchange reactions with flux > 0.
+
+    Parameters
+    ----------
+        model  : cobra.core.model.Model
+                 Cobrapy model.
+        pFBA   : Bool, default=True
+                 If True a pFBA is performed to get fluxes.
+
+    Returns
+    -------
+        out_flux : Dict
+                   Dictionary with all exchange reactions with flux > 0.
 
     """
 
@@ -200,17 +272,45 @@ def out_flux(model,pFBA=True):
     return out_flux
 
 def c_flux_coefficient(reaction_id,model):
-    """ returns the amount of C consumed/produced in a non-mass-balanced reaction """
+    """
+    Returns the amount of C consumed/produced in a non-mass-balanced reaction
+
+    Parameters
+    ----------
+    reaction_id : Str
+                  Cobra reaction id as string.
+    model       : cobra.core.model.Model
+                  CobraPy model.
+
+    Returns
+    -------
+    carbon_flux_coefficient : Float
+                              C flux of the reaction (only non-0 when not mass balanced).
+
+    """
     carbon_flux_coefficient = 0
     for meta in model.reactions.get_by_id(reaction_id).metabolites:
         carbon_flux_coefficient += model.reactions.get_by_id(reaction_id).metabolites[meta]*count_atom(meta.formula,'C')
     return carbon_flux_coefficient
 
 def carbon_fluxes(model):
-    """ Returns dictionary of non-zero carbon fluxes during FBA.
-    Carbon fluxes are only non-zero when a reaction is not mass balanced. """
+    """
+    Returns dictionary of non-zero carbon fluxes during FBA.
+    Carbon fluxes are only non-zero when a reaction is not mass balanced.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+            CobraPy model.
+
+    Returns
+    -------
+    c_fluxes : Dict
+               Dictionary of non-zero carbon fluxes during FBA.
+
+    """
     c_fluxes = {}
-    solution = model.optimize()
+    solution = sensitive_optimize(model)
     for r in model.reactions:
         rate = c_flux_coefficient(r.id,model)
         if rate != 0 and solution.fluxes[r.id] != 0:
@@ -230,7 +330,18 @@ def carbon_fluxes(model):
 
 def pfba_carbon_fluxes(model):
     """ Returns dictionary of non-zero carbon fluxes during pFBA.
-    Carbon fluxes are only non-zero when a reaction is not mass balanced. """
+    Carbon fluxes are only non-zero when a reaction is not mass balanced.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+            CobraPy model.
+
+    Returns
+    -------
+    c_fluxes : Dict
+               Dictionary of non-zero carbon fluxes during pFBA.
+    """
     c_fluxes = {}
     solution = cobra.flux_analysis.pfba(model)
     for r in model.reactions:
@@ -251,7 +362,28 @@ def pfba_carbon_fluxes(model):
     return c_fluxes
 
 def michaelis_menten(c,vmax,km):
-    """returns negative v. be aware of units!"""
+    """
+    Simple implementation of a Michaelis Menten enzyme kinetic.
+    v = - vmax*c/(k_M+c)
+    Attention: returns negative fluxes.
+    Attention: be aware of units.
+
+
+    Parameters
+    ----------
+    c : float
+        Concentration.
+    vmax : float
+        Maximum reaction rate.
+    km : float
+        K_M as defined in Michaelis Menten kinetics.
+
+    Returns
+    -------
+    v : float
+        Reaction rate, (negative sign!).
+
+    """
     if c <= 0:
         v = 0
     else:
@@ -259,19 +391,31 @@ def michaelis_menten(c,vmax,km):
     return v
 
 def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic_constraints):
+    """
+    Lexicographic Dynamic FBA
 
-    """ \nLexicographic Dynamic FBA\n
-    INPUT
-    \t compounds  : list of reactions to track with size n
-    \t y_zero     : list of start concentrations of reaction metabolites with size n
-    \t time       : list with t0, tmax, and dt
-    \t objectives : list of reactions to optimize with size m
-    \t objectives_direction : list of direction of reactions to optimize ('max' or 'min') with size m
-    \t dynamic_constraints  : list of lists in form of [['reaction_id',vmax,km],...]
+    Parameters
+    ----------
+    compounds  : list
+        List of reactions to track with size n
+    y_zero     : list
+        List of start concentrations of reaction metabolites with size n
+    time       : list
+        List with t0, tmax, and dt
+    objectives : list
+        List of reactions to optimize with size m
+    objectives_direction : list
+        List of direction of reactions to optimize ('max' or 'min') with size m
+    dynamic_constraints  : list
+        List of lists in form of ``[['reaction_id',vmax,km],...]``
 
-    RETURNS
-    \t dict of tracked reaction concentrations
-    \t dict of tracked reaction fluxes"""
+    Returns
+    -------
+    y : dict
+        Dictionary of tracked reaction concentrations
+    f : dict
+        Dictionary of tracked reaction fluxes
+        """
 
 
     y = {}
@@ -309,6 +453,14 @@ def investigate_reaction(model,reaction_id,silent_metabolites=None):
     Returns metabolites which are part of the reaction.
     Exempt for metabolite ids listed in silent_metabolites
     (default: [}).
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+
     '''
     if silent_metabolites == None:
         silent_metabolites = []
@@ -324,6 +476,13 @@ def investigate_metabolite(model,metabolite_id,silent_reactions=None):
     Returns reactions in which this metabolite is present.
     Exempt for reaction ids listed in silent_reactions
     (default: []).
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     '''
     if silent_reactions == None:
         silent_reactions = []
@@ -350,17 +509,26 @@ def investigate_network_solution(model, solution, start_reaction, depth, silent_
     '''
     See the enviroment of the Metabolic Network around a reaction of interest.
 
-    Input:
-        model                 cobrapy model
-        solution              a cobrapy model solution
-        start_reaction        reaction_id of reaction of interest
-        depth                 reaction depth to investigate
-        silent_reactions      reactions you are not interested in for whatever reason
-                              default: []
-        silent_metabolites    metabolites you are not interested in for whatever reason
-                              default: ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']
-    Output:
-        None - Prints reactions and metabolites in the network with non-zero flux in the solution object.
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        Cobrapy model.
+    solution : cobra.core.Solution
+        A CobraPy model solution.
+    start_reaction : Str
+        Reaction_id of reaction of interest
+    depth : Int
+        Reaction depth to investigate
+    silent_reactions : list ``default=[]``
+        Reactions you are not interested in for whatever reason
+    silent_metabolites : list, ``default=['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']``
+        Metabolites you are not interested in for whatever reason (usually because they are present in almost all reactions).
+
+
+    Returns
+    -------
+    None : None
+        Prints reactions and metabolites in the network with non-zero flux in the solution object.
     '''
 
     if silent_reactions == None:
@@ -391,16 +559,23 @@ def investigate_network(model,start_reaction,depth,silent_reactions = None,silen
     '''
     See the enviroment of the Metabolic Network around a reaction of interest.
 
-    Input:
-        model                 cobrapy model
-        start_reaction        reaction_id of reaction of interest
-        depth                 reaction depth to investigate
-        silent_reactions      reactions you are not interested in for whatever reason
-                              default: []
-        silent_metabolites    metabolites you are not interested in for whatever reason
-                              default: ['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']
-    Output:
-        None - Prints reactions and metabolites in the Network.    '''
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        Cobrapy model.
+    start_reaction : Str
+        Reaction_id of reaction of interest
+    depth : Int
+        Reaction depth to investigate
+    silent_reactions : list ``default=[]``
+        Reactions you are not interested in for whatever reason
+    silent_metabolites : list, ``default=['h_c','atp_c','h2o_c','pi_c','h_p','adp_c','o2_p','h2o_c','h2o_p']``
+        Metabolites you are not interested in for whatever reason (usually because they are present in almost all reactions).
+
+    Returns
+    -------
+    None : None
+        Prints reactions and metabolites in the Network.    '''
 
     if silent_reactions == None:
         silent_reactions = []

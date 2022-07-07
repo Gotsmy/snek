@@ -7,7 +7,7 @@ The functions listed here are wrappers to important cobra functions that do addi
 
 def set_objective(model,reaction,direction='max'):
     '''
-    Updates the objective function of a model. More importantly, also checks if the objective reaction have unusual bounds.
+    Updates the objective function of a model. More importantly, also checks if the objective reaction has unusual bounds.
     I.e. something else than (lower bound, upper bound)
 
     * -1000/1000 for maximization and minimization,
@@ -21,7 +21,7 @@ def set_objective(model,reaction,direction='max'):
         reaction    : Str
                       Objective reaction ID.
         direction   : Str, default='max'
-                      Objective direction, either 'min' or 'max'.
+                      Objective direction, either ``'min'`` or ``'max'``.
 
     Returns
     -------
@@ -72,7 +72,7 @@ def set_bounds(model,reaction,lb=None,ub=None):
 def sensitive_optimize(model):
     '''
     In contrast to the original implementation where fluxes can still be extracted from
-    infeasible solutions (e.g. solution[reaction_id] = <float>, even if solution.status == 'infeasible'),
+    infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if ``solution.status == 'infeasible')``,
     this implementation returns a None object if the solver is infeasible.
 
     Parameters
@@ -83,7 +83,7 @@ def sensitive_optimize(model):
     Returns
     -------
         solution : cobra.core.solution.Solution or None
-                   Optimized solution if solution.status != 'infeasible', otherwise None.
+                   Optimized solution if ``solution.status != 'infeasible'``, otherwise None.
     '''
 
     solution = model.optimize()
