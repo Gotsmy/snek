@@ -66,7 +66,7 @@ def unique_elements(formula):
 
     tmp = ''
     for letter in formula:
-        if not letter.isnumeric():
+        if not letter.isnumeric() and not letter=='.':
             if letter.isupper():
                 if len(tmp) > 0 and tmp not in list_elements:
                     list_elements.append(tmp)
