@@ -17,11 +17,17 @@ The functions can also be called with ``snek.<function>``.
    :undoc-members:
    :show-inheritance:
 
-Analysis Module
+Elements Module
 --------------------
 
-A module with more specialized functions to investigate CobraPy models and to look at fluxes.
+.. automodule:: snek.elements
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
+
+Analysis Module
+--------------------
 
 .. automodule:: snek.analysis
    :members:
