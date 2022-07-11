@@ -1,110 +1,12 @@
+'''
+This module contains several functions for the analysis of CobraPy models.
+'''
+
 import cobra
 import numpy as np
 import pandas as pd
 from .core import sensitive_optimize
-
-def count_atom(formula,element):
-    """
-    Counts the number of atoms of an element in a chemical formula.
-    Works with multiple-letter element names and floats.
-    Case sensitive!
-
-    Parameters
-    ----------
-        formula  :  Str
-                    Chemical formula, e.g. ``'H2O'``.
-        element  :  Str
-                    Element name, e.g. ``'H'``.
-
-    Returns
-    -------
-        nr       :  float
-                    Number of atoms as float, e.g. ``2.0``.
-    """
-    found = 0
-    while formula.find(element) != -1:
-        idx = formula.find(element)+len(element)-1
-        tmp = ''
-        for f in formula[idx+1:]:
-            if f.isupper() == False:
-                tmp += f
-            else:
-                break
-        if len(tmp) == 0:
-            nr = '1'
-            found = 1
-            break
-
-        elif tmp[0].islower() == False:
-            nr = tmp
-            found = 1
-            break
-        else:
-            found = 0
-            formula = formula[idx+1:]
-
-    if found == 0:
-        nr = '0'
-    return float(nr)
-
-def unique_elements(formula):
-    '''
-    Get a list of unique elements from a chemical formula.
-
-    Parameters
-    ----------
-        formula   : Str
-                    Chemical formula, e.g. ``'H2O'``.
-
-    Returns
-    -------
-        list_elements :  List
-                         List of unique elements, e.g. ``['H','O']``.
-    '''
-
-    list_elements = []
-
-    tmp = ''
-    for letter in formula:
-        if not letter.isnumeric() and not letter=='.':
-            if letter.isupper():
-                if len(tmp) > 0 and tmp not in list_elements:
-                    list_elements.append(tmp)
-                tmp = ''
-                tmp += letter
-            else:
-                tmp += letter
-
-    if len(tmp) > 0 and tmp not in list_elements:
-        list_elements.append(tmp)
-
-    return list_elements
-
-def element_composition(formula):
-    '''
-    Get the elemental composition of a molecule as dictionary.
-    Keys correspond to elements, values to their number of appearance.
-
-    Parameters
-    ----------
-        formula  :  Str
-                    Chemical formula, e.g. ``'H2O'``.
-
-    Returns
-    -------
-        composition :   Dict
-                        Dictionary with unique elements as keys
-                        and number of atoms per element as items,
-                        e.g. ``{'H': 2.0, 'O': 1.0}``.
-
-    '''
-
-    list_elements = unique_elements(formula)
-    composition  = {}
-    for element in list_elements:
-        composition[element] = count_atom(formula,element)
-
-    return composition
+from .elements import *
 
 def get_constrained_reactions(model):
     '''
