@@ -1,9 +1,14 @@
-import warnings
 '''
-The functions listed here are wrappers to important cobra functions that do additional checks:
+The core module contains simple wrappers to important cobra functions that do additional checks:
+
 * ensuring correct spelling,
 * check for logical errors.
+
+The functions can also be called with ``snek.<function>``.
 '''
+
+import warnings
+import cobra
 
 def set_objective(model,reaction,direction='max'):
     '''
@@ -69,11 +74,11 @@ def set_bounds(model,reaction,lb=None,ub=None):
     model.reactions.get_by_id(reaction).bounds = float(lb),float(ub)
     return model
 
-def sensitive_optimize(model):
+def sensitive_optimize(model,pFBA=False):
     '''
     In contrast to the original implementation where fluxes can still be extracted from
     infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if ``solution.status == 'infeasible')``,
-    this implementation returns a None object if the solver is infeasible.
+    this implementation raises a ValueError if the solver is infeasible.
 
     Additionally, the function checks if the objective reaction has unusual bounds.
     I.e. something else than (lower bound, upper bound)
@@ -87,20 +92,25 @@ def sensitive_optimize(model):
     ----------
         model    : cobra.core.model.Model
                    CobraPy Model.
+        pFBA : Bool, default=False
+            Wether or not to do parsimonious FBA.
 
     Returns
     -------
-        solution : cobra.core.solution.Solution or None
-                   Optimized solution if ``solution.status != 'infeasible'``, otherwise None.
+        solution : cobra.core.solution.Solution
+                   Optimized solution if ``solution.status != 'infeasible'``.
     '''
 
     objective_reaction_id = get_objective(model)
     objective_direction = model.objective_direction
     model = set_objective(model,objective_reaction_id,objective_direction)
 
-    solution = model.optimize()
+    if pFBA:
+        solution = cobra.flux_analysis.parsimonious.pfba(model)
+    else:
+        solution = model.optimize()
     if solution.status == 'infeasible':
-        return None
+        raise ValueError('Solution is infeasible')
     else:
         return solution
 
