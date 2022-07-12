@@ -75,6 +75,14 @@ def sensitive_optimize(model):
     infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if ``solution.status == 'infeasible')``,
     this implementation returns a None object if the solver is infeasible.
 
+    Additionally, the function checks if the objective reaction has unusual bounds.
+    I.e. something else than (lower bound, upper bound)
+
+    * -1000/1000 for maximization and minimization,
+    *     0/1000 for maximization, or
+    * -1000/   0 for minimization.
+
+
     Parameters
     ----------
         model    : cobra.core.model.Model
