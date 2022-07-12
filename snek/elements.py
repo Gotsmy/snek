@@ -111,7 +111,7 @@ def element_composition(formula):
 
 def molecular_weight(sum_formula):
     '''
-    Calculates molecular weight from sum formula. The mass table is derived from the enviPat package [1]_.
+    Calculates molecular weight from sum formula. The mass table is derived from the CobraPy package [1]_.
 
     Parameters
     ----------
@@ -125,10 +125,10 @@ def molecular_weight(sum_formula):
 
     Notes
     -----
-    .. [1] Loos, M., Gerber, C., Corona, F., Hollender, J., Singer, H. (2015).
-        Accelerated isotope fine structure calculation using pruned transition
-        trees, Analytical Chemistry 87(11), 5738-5744.
-        http://pubs.acs.org/doi/abs/10.1021/acs.analchem.5b00941
+    .. [1] Ebrahim, A., Lerman, J. A., Palsson, B. O., & Hyduke, D. R. (2013).
+        COBRApy: constraints-based reconstruction and analysis for python.
+        BMC systems biology, 7(1), 1-6.
+        https://doi.org/10.1186/1752-0509-7-74
     '''
 
     elements = element_composition(sum_formula)
