@@ -178,13 +178,13 @@ def sum_formula_pDNA(sequence,return_dic=False):
 
     sum_formula_dic = {'C':0,'H':0,'N':0,'O':0,'P':0}
 
-    # leading strand
+    # forward strand
     for name, formula in zip(base_names,base_formulas_fw):
         tmp_count = sequence.count(name)
         tmp_elements = element_composition(formula)
         for element in tmp_elements:
                 sum_formula_dic[element] += tmp_count * tmp_elements[element]
-    # lagging strand
+    # reverse strand
     for name, formula in zip(base_names,base_formulas_rv):
         tmp_count = sequence.count(name)
         tmp_elements = element_composition(formula)
