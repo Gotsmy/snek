@@ -9,4 +9,4 @@ assert len(c_fluxes) == 3
 
 
 
-print('END OF TEST')
+print('End of test_analysis.py')

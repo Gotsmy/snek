@@ -86,8 +86,47 @@ def sensitive_optimize(model):
                    Optimized solution if ``solution.status != 'infeasible'``, otherwise None.
     '''
 
+    objective_reaction_id = get_objective(model)
+    objective_direction = model.objective_direction
+    model = set_objective(model,objective_reaction_id,objective_direction)
+
     solution = model.optimize()
     if solution.status == 'infeasible':
         return None
     else:
         return solution
+
+def find_biomass_reaction(model):
+    '''
+    Searches 'Biomass' string in reaction names or reaction IDs.
+    Prints reaction IDs of found reactions.
+    Not sensitive to capitalization.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        CobraPy Model to be searched.
+    '''
+
+    for reaction in model.reactions:
+        if 'BIOMASS' in reaction.name.upper() or 'BIOMASS' in reaction.id.upper():
+            print(reaction.id)
+
+def get_objective(model):
+    '''
+    Returns the reaction ID of a single reaction objective of a CobraPy model.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        CobraPy Model.
+
+    Returns
+    -------
+    reaction_id : Str
+        Reaction id of the objective reaction.
+    '''
+
+    reaction_id = str(model.objective.expression).split('*')[1].split(' ')[0]
+
+    return reaction_id

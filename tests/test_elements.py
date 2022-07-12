@@ -26,4 +26,4 @@ test_mw_bio = SeqUtils.molecular_weight(sequence,seq_type='DNA',double_stranded=
 assert np.abs((test_mw_my_implementation-test_mw_bio)/np.mean([test_mw_bio,test_mw_my_implementation])*100) < .1
 
 
-print('END OF TEST')
+print('End of test_elements.py')

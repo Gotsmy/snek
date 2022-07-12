@@ -9,4 +9,4 @@ solution2 = snek.sensitive_optimize(model)
 assert all(solution1.fluxes == solution2.fluxes)
 
 
-print('END OF TEST')
+print('End of test_core.py')
