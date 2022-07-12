@@ -111,7 +111,7 @@ def element_composition(formula):
 
 def molecular_weight(sum_formula):
     '''
-    Calculates molecular weight from sum formula.
+    Calculates molecular weight from sum formula. The mass table is derived from the enviPat package [1].
 
     Parameters
     ----------
@@ -122,6 +122,8 @@ def molecular_weight(sum_formula):
     -------
     molecular_weight : Float
         Float of molecular weight in g/mol.
+
+    [1] Loos, M., Gerber, C., Corona, F., Hollender, J., Singer, H. (2015). Accelerated isotope fine structure calculation using pruned transition trees, Analytical Chemistry 87(11), 5738-5744. 
     '''
 
     elements = element_composition(sum_formula)
