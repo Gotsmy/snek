@@ -13,12 +13,15 @@ from optlang.glpk_interface import Model as glpkModel
 
 def set_objective(model,reaction,direction='max'):
     '''
-    Updates the objective function of a model. More importantly, also checks if the objective reaction has unusual bounds.
-    I.e. something else than (lower bound, upper bound)
+    Updates the objective function of a model. More importantly, also checks if
+    the objective reaction has unusual bounds.
+    I.e., if other bounds than (lower bound, upper bound)
 
-    * -1000/1000 for maximization and minimization,
-    *     0/1000 for maximization, or
-    * -1000/   0 for minimization.
+        * -1000/1000 for maximization and minimization,
+        *     0/1000 for maximization, or
+        * -1000/   0 for minimization.
+
+    are present, a warning is printed.
 
     Parameters
     ----------
@@ -81,7 +84,7 @@ def sensitive_optimize(model,pFBA=False):
 
     #. In contrast to the original implementation where fluxes can still be extracted from
        infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if
-       ``solution.status == 'infeasible')``, this function raises a
+       ``solution.status == 'infeasible'``), this function raises a
        ValueError if the solver is infeasible.
 
     #. Additionally, this function checks if the objective reaction has unusual bounds.
