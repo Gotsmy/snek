@@ -9,6 +9,7 @@ The functions can also be called with ``snek.<function>``.
 
 import warnings
 import cobra
+from optlang.glpk_interface import Model as glpkModel
 
 def set_objective(model,reaction,direction='max'):
     '''
@@ -76,17 +77,24 @@ def set_bounds(model,reaction,lb=None,ub=None):
 
 def sensitive_optimize(model,pFBA=False):
     '''
-    In contrast to the original implementation where fluxes can still be extracted from
-    infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if ``solution.status == 'infeasible')``,
-    this implementation raises a ValueError if the solver is infeasible.
+    This function does some additional checks before model optimization.
 
-    Additionally, the function checks if the objective reaction has unusual bounds.
-    I.e. something else than (lower bound, upper bound)
+    #. In contrast to the original implementation where fluxes can still be extracted from
+       infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if
+       ``solution.status == 'infeasible')``, this function raises a
+       ValueError if the solver is infeasible.
 
-    * -1000/1000 for maximization and minimization,
-    *     0/1000 for maximization, or
-    * -1000/   0 for minimization.
+    #. Additionally, this function checks if the objective reaction has unusual bounds.
+       I.e., if other bounds than (lower bound, upper bound)
 
+        * -1000/1000 for maximization and minimization,
+        *     0/1000 for maximization, or
+        * -1000/   0 for minimization.
+
+       are present, a warning is printed.
+
+    #. Finally, this function warns about inconsistent results that can occur when
+       doing pFBA with the GLPK solver.
 
     Parameters
     ----------
@@ -106,6 +114,8 @@ def sensitive_optimize(model,pFBA=False):
     model = set_objective(model,objective_reaction_id,objective_direction)
 
     if pFBA:
+        if isinstance(model.solver,glpkModel):
+            warnings.warn('You are performing pFBA with the GLPK Solver. This can lead to inconsistent results.')
         solution = cobra.flux_analysis.parsimonious.pfba(model)
     else:
         solution = model.optimize()
