@@ -136,10 +136,7 @@ def in_flux(model,pFBA=True):
     """
 
     in_flux = {}
-    if pFBA:
-        solution = cobra.flux_analysis.pfba(model)
-    else:
-        solution = sensitive_optimize(model)
+    solution = sensitive_optimize(model,pFBA=pFBA)
     for ex in model.exchanges:
         if solution[ex.id] < 0:
             in_flux[ex.id] = solution[ex.id]
