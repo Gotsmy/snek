@@ -9,7 +9,6 @@ The functions can also be called with ``snek.<function>``.
 
 import warnings
 import cobra
-from optlang.glpk_interface import Model as glpkModel
 
 def set_objective(model,reaction,direction='max'):
     '''
@@ -117,7 +116,7 @@ def sensitive_optimize(model,pFBA=False):
     model = set_objective(model,objective_reaction_id,objective_direction)
 
     if pFBA:
-        if isinstance(model.solver,glpkModel):
+        if get_solver(model) == 'glpk':
             warnings.warn('You are performing pFBA with the GLPK Solver. This can lead to inconsistent results.')
         solution = cobra.flux_analysis.parsimonious.pfba(model)
     else:
@@ -161,3 +160,52 @@ def get_objective(model):
     reaction_id = str(model.objective.expression).split('*')[1].split(' ')[0]
 
     return reaction_id
+
+def get_solver(model):
+    '''
+    Returns the solver name of the model.
+
+    Parameters
+    ----------
+        model : cobra.core.model.Model
+            CobraPy model.
+
+    Returns
+    -------
+        solver_name : Str
+            Solver name as string.
+    '''
+
+    from optlang import available_solvers
+    if available_solvers['GLPK']:
+        from optlang.glpk_interface import Model as glpk_Model
+        from optlang.glpk_exact_interface import Model as glpk_exact_Model
+    else:
+        glpk_Model, glpk_exact_Model = None, None
+    if available_solvers['CPLEX']:
+        from optlang.cplex_interface import Model as cplex_Model
+    else:
+        cplex_Model = None
+    if available_solvers['SCIPY']:
+        from optlang.scipy_interface import Model as scipy_Model
+    else:
+        scipy_Model = None
+    if available_solvers['GUROBI']:
+        from optlang.gurobi_interface import Model as gurobi_Model
+    else:
+        gurobi_Model = None
+
+    if isinstance(model.solver,glpk_exact_Model):
+        solver_name = 'glpk_exact'
+    elif isinstance(model.solver,glpk_Model):
+        solver_name = 'glpk'
+    elif isinstance(model.solver,cplex_Model):
+        solver_name = 'cplex'
+    elif isinstance(model.solver,scipy_Model):
+        solver_name = 'scipy'
+    elif isinstance(model.solver,gurobi_Model):
+        solver_name = 'gurobi'
+    else:
+        raise ValueError('Solver cannot be identified.')
+
+    return solver_name
