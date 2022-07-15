@@ -170,97 +170,7 @@ def out_flux(model,pFBA=True):
             out_flux[ex.id] = solution[ex.id]
     return out_flux
 
-def c_flux_coefficient(reaction_id,model):
-    """
-    Returns the amount of C consumed/produced in a non-mass-balanced reaction
-
-    Parameters
-    ----------
-    reaction_id : Str
-                  Cobra reaction id as string.
-    model       : cobra.core.model.Model
-                  CobraPy model.
-
-    Returns
-    -------
-    carbon_flux_coefficient : Float
-                              C flux of the reaction (only non-0 when not mass balanced).
-
-    """
-    carbon_flux_coefficient = 0
-    for meta in model.reactions.get_by_id(reaction_id).metabolites:
-        carbon_flux_coefficient += model.reactions.get_by_id(reaction_id).metabolites[meta]*count_atom(meta.formula,'C')
-    return carbon_flux_coefficient
-
-def carbon_fluxes(model):
-    """
-    Returns dictionary of non-zero carbon fluxes during FBA.
-    Carbon fluxes are only non-zero when a reaction is not mass balanced.
-
-    Parameters
-    ----------
-    model : cobra.core.model.Model
-            CobraPy model.
-
-    Returns
-    -------
-    c_fluxes : Dict
-               Dictionary of non-zero carbon fluxes during FBA.
-
-    """
-    c_fluxes = {}
-    solution = sensitive_optimize(model)
-    for r in model.reactions:
-        rate = c_flux_coefficient(r.id,model)
-        if rate != 0 and solution.fluxes[r.id] != 0:
-            c_fluxes[r.id] = solution.fluxes[r.id]*rate
-    #do a sanity check
-    control = 0
-    for c_flux in c_fluxes:
-        control += c_fluxes[c_flux]
-    if round(control,5) != 0:
-        print("There is a problem! Fluxes don't add up.")
-        print('Sum :',control)
-        return
-    elif round(control,10) != 0:
-        print("There might be a problem! Fluxes don't add up.")
-        print('Sum :',control)
-    return c_fluxes
-
-def pfba_carbon_fluxes(model):
-    """ Returns dictionary of non-zero carbon fluxes during pFBA.
-    Carbon fluxes are only non-zero when a reaction is not mass balanced.
-
-    Parameters
-    ----------
-    model : cobra.core.model.Model
-            CobraPy model.
-
-    Returns
-    -------
-    c_fluxes : Dict
-               Dictionary of non-zero carbon fluxes during pFBA.
-    """
-    c_fluxes = {}
-    solution = cobra.flux_analysis.pfba(model)
-    for r in model.reactions:
-        rate = c_flux_coefficient(r.id,model)
-        if rate != 0 and solution.fluxes[r.id] != 0:
-            c_fluxes[r.id] = solution.fluxes[r.id]*rate
-    #do a sanity check
-    control = 0
-    for c_flux in c_fluxes:
-        control += c_fluxes[c_flux]
-    if round(control,5) != 0:
-        print("There is a problem! Fluxes don't add up.")
-        print('Sum :',control)
-        return
-    elif round(control,10) != 0:
-        print("There might be a problem! Fluxes don't add up.")
-        print('Sum :',control)
-    return c_fluxes
-
-def michaelis_menten(c,vmax,km):
+def _michaelis_menten(c,vmax,km):
     """
     Simple implementation of a Michaelis Menten enzyme kinetic.
     v = - vmax*c/(k_M+c)
@@ -289,7 +199,7 @@ def michaelis_menten(c,vmax,km):
         v = -vmax * c / (km + c)
     return v
 
-def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic_constraints):
+def _lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic_constraints):
     """
     Lexicographic Dynamic FBA
 
@@ -330,7 +240,7 @@ def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic
     for n,t in enumerate(np.arange(t0,tmax,dt)):
         with model:
             for dc in dynamic_constraints:
-                model.reactions.get_by_id(dc[0]).lower_bound = michaelis_menten(y[n][compounds.index(dc[0])],dc[1],dc[2])
+                model.reactions.get_by_id(dc[0]).lower_bound = _michaelis_menten(y[n][compounds.index(dc[0])],dc[1],dc[2])
             try:
                 lex_constraints = cobra.util.add_lexicographic_constraints(model, objectives, objectives_direction)
             except:
@@ -347,7 +257,7 @@ def lex_dfba(model,compounds,y_zero,time,objectives,objectives_direction,dynamic
             f[n+1]=tmp_f
     return y,f
 
-def investigate_reaction(model,reaction_id,silent_metabolites=None):
+def _investigate_reaction(model,reaction_id,silent_metabolites=None):
     '''
     Returns metabolites which are part of the reaction.
     Exempt for metabolite ids listed in silent_metabolites
@@ -370,7 +280,7 @@ def investigate_reaction(model,reaction_id,silent_metabolites=None):
 
     return metabolite_list
 
-def investigate_metabolite(model,metabolite_id,silent_reactions=None):
+def _investigate_metabolite(model,metabolite_id,silent_reactions=None):
     '''
     Returns reactions in which this metabolite is present.
     Exempt for reaction ids listed in silent_reactions
@@ -392,7 +302,7 @@ def investigate_metabolite(model,metabolite_id,silent_reactions=None):
 
     return reaction_list
 
-def mimic_excel():
+def _mimic_excel():
     'Just creates some letters, Excel style.'
     # https://stackoverflow.com/questions/63875471/enumerate-with-letters-instead-of-numbers
     for i in range(0, 26):
@@ -439,18 +349,18 @@ def investigate_network_solution(model, solution, start_reaction, depth, silent_
     metabolite_list  = []
     for i in range(1,depth+1):
         new_reaction_list = []
-        for n,r in zip(mimic_excel(),reaction_list):
+        for n,r in zip(_mimic_excel(),reaction_list):
             if r in silent_reactions:
                 pass
             elif solution[r] == 0:
                 pass
             else:
                 print('{:1}.{:3} {:17} ({:.5f})'.format(i,n,r,solution[r]))
-                metabolite_list = investigate_reaction(model,r,silent_metabolites)
+                metabolite_list = _investigate_reaction(model,r,silent_metabolites)
                 silent_reactions.append(r)
                 for m in metabolite_list:
                     print('      > {:15} ({:5})'.format(m,model.reactions.get_by_id(r).metabolites[model.metabolites.get_by_id(m)]))
-                    new_reaction_list += investigate_metabolite(model,m,silent_reactions)
+                    new_reaction_list += _investigate_metabolite(model,m,silent_reactions)
         reaction_list = set(new_reaction_list)
     return
 
@@ -485,15 +395,15 @@ def investigate_network(model,start_reaction,depth,silent_reactions = None,silen
     metabolite_list  = []
     for i in range(1,depth+1):
         new_reaction_list = []
-        for n,r in zip(mimic_excel(),reaction_list):
+        for n,r in zip(_mimic_excel(),reaction_list):
             if r in silent_reactions:
                 pass
             else:
                 print('{:1}.{:3} {}'.format(i,n,r))
-                metabolite_list = investigate_reaction(model,r,silent_metabolites)
+                metabolite_list = _investigate_reaction(model,r,silent_metabolites)
                 silent_reactions.append(r)
                 for m in metabolite_list:
                     print('      > {:15} ({:5})'.format(m,model.reactions.get_by_id(r).metabolites[model.metabolites.get_by_id(m)]))
-                    new_reaction_list += investigate_metabolite(model,m,silent_reactions)
+                    new_reaction_list += _investigate_metabolite(model,m,silent_reactions)
         reaction_list = set(new_reaction_list)
     return
