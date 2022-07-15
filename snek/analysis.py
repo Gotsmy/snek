@@ -48,123 +48,111 @@ def get_constrained_reactions(model):
 
 def in_bounds(model):
     """
-    Returns all exchange reactions with lower_bounds < 0  as dictionary.
+    Returns all boundary reactions that have a non-zero lower bound as data frame.
 
     Parameters
     ----------
     model : cobra.core.model.Model
-            CobraPy Model.
+        CobraPy Model.
 
     Returns
     -------
-    in_bnds : Dict
-              Dictionary of all exchange reactions that have lower bounds lower than 0.
-
+    bounds : pandas.DataFrame
+        Data frame of boundary reactions with non-zero lower bound.
     """
-    in_bnds ={}
-    for ex in model.exchanges:
-        if ex.lower_bound != 0:
-            in_bnds[ex.id] = ex.lower_bound
-    return in_bnds
+
+    bounds ={}
+    for reaction in model.boundary:
+        if reaction.lower_bound != 0:
+            bounds[reaction.id] = [reaction.name,reaction.id,reaction.lower_bound,reaction.upper_bound]
+    bounds = pd.DataFrame(bounds).T
+    bounds.columns = columns=['name','id','lower_bound','upper_bound']
+    bounds = bounds.sort_values(['lower_bound','upper_bound'],ascending=False)
+    return bounds
 
 def out_bounds(model):
     """
-    Returns all exchange reactions with lower_bounds > 0  as dictionary.
+    Returns all boundary reactions that have a non-zero upper bound as data frame.
 
     Parameters
     ----------
     model : cobra.core.model.Model
-            CobraPy Model.
+        CobraPy Model.
 
     Returns
     -------
-    out_bnds : Dict
-              Dictionary of all exchange reactions that have lower bounds greater than 0.
-
+    bounds : pandas.DataFrame
+        Data frame of boundary reactions with non-zero upper bound.
     """
-    out_bnds ={}
-    for ex in model.exchanges:
-        if ex.upper_bound != 0:
-            out_bnds[ex.id] = ex.upper_bound
-    return out_bnds
 
-def io_bounds(model,info=True):
-    """Returns all exchange reactions that have non 0 input and their output bounds
+    bounds ={}
+    for reaction in model.boundary:
+        if reaction.upper_bound != 0:
+            bounds[reaction.id] = [reaction.name,reaction.id,reaction.lower_bound,reaction.upper_bound]
+    bounds = pd.DataFrame(bounds).T
+    bounds.columns = columns=['name','id','lower_bound','upper_bound']
+    bounds = bounds.sort_values(['upper_bound','lower_bound'],ascending=False)
+    return bounds
+
+def in_flux(model,solution=None):
+    """
+    Returns all boundary reactions with flux < 0  as data frame.
 
     Parameters
     ----------
     model : cobra.core.model.Model
-            CobraPy Model.
-    info :  Bool, default=True
-            If True prints the name of variables in output list.
+        CobraPy model.
+    solution : cobra.core.solution.Solution, default=None
+        CobryPy solution object. If None a pFBA is performed.
 
     Returns
     -------
-    io_bnds : Dict
-              Dictionary of exchange reactions with non-zero lower bound in the form of
-              ``io_bnds[<reaction_id>] = [<lower bound>,<upper bound>]``.
+    flux : pandas.DataFrame
+        Data frame with all exchange reactions with flux < 0.
 
     """
-    io_bnds ={}
-    if info == True:
-        print('[lower_bound,upper_bound]')
-    for ex in model.exchanges:
-        if ex.lower_bound != 0:
-            io_bnds[ex.id] = [ex.lower_bound,ex.upper_bound]
-    return io_bnds
 
-def in_flux(model,pFBA=True):
+    if isinstance(solution,type(None)):
+        solution = sensitive_optimize(model,pFBA=True)
+
+    flux= {}
+    for reaction in model.boundary:
+        if solution[reaction.id] < 0:
+            flux[reaction.id] = [reaction.name,reaction.id,solution[reaction.id]]
+    flux = pd.DataFrame(flux).T
+    flux.columns = columns=['name','id','flux']
+    flux = flux.sort_values('flux',ascending=True)
+    return flux
+
+def out_flux(model,solution=None):
     """
-    Returns all exchange reactions with flux < 0  as dictionary.
+    Returns all boundary reactions with flux > 0  as data frame.
 
     Parameters
     ----------
-        model    : cobra.core.model.Model
-                   Cobrapy model.
-        pFBA     : Bool, default=True
-                   If True a pFBA is performed to get fluxes, else FBA.
+    model : cobra.core.model.Model
+        CobraPy model.
+    solution : cobra.core.solution.Solution, default=None
+        CobryPy solution object. If None a pFBA is performed.
 
     Returns
     -------
-        in_flux : Dict
-                  Dictionary with all exchange reactions with flux < 0.
+    flux : pandas.DataFrame
+        Data frame with all boundary reactions with flux > 0.
 
     """
 
-    in_flux = {}
-    solution = sensitive_optimize(model,pFBA=pFBA)
-    for ex in model.exchanges:
-        if solution[ex.id] < 0:
-            in_flux[ex.id] = solution[ex.id]
-    return in_flux
+    if isinstance(solution,type(None)):
+        solution = sensitive_optimize(model,pFBA=True)
 
-def out_flux(model,pFBA=True):
-    """
-    Returns all exchange reactions with flux > 0  as dictionary.
-
-    Parameters
-    ----------
-        model  : cobra.core.model.Model
-                 Cobrapy model.
-        pFBA   : Bool, default=True
-                 If True a pFBA is performed to get fluxes.
-
-    Returns
-    -------
-        out_flux : Dict
-                   Dictionary with all exchange reactions with flux > 0.
-
-    """
-
-    out_flux = {}
-    if pFBA:
-        solution = cobra.flux_analysis.pfba(model)
-    else:
-        solution = sensitive_optimize(model)
-    for ex in model.exchanges:
-        if solution[ex.id] > 0:
-            out_flux[ex.id] = solution[ex.id]
-    return out_flux
+    flux= {}
+    for reaction in model.boundary:
+        if solution[reaction.id] > 0:
+            flux[reaction.id] = [reaction.name,reaction.id,solution[reaction.id]]
+    flux = pd.DataFrame(flux).T
+    flux.columns = columns=['name','id','flux']
+    flux = flux.sort_values('flux',ascending=False)
+    return flux
 
 def _michaelis_menten(c,vmax,km):
     """
