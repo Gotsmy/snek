@@ -16,9 +16,9 @@ def set_objective(model,reaction,direction='max'):
     the objective reaction has unusual bounds.
     I.e., if other bounds than (lower bound, upper bound)
 
-        * -1000/1000 for maximization and minimization,
-        *     0/1000 for maximization, or
-        * -1000/   0 for minimization.
+        * ``(-1000, 1000)`` for maximization and minimization,
+        * ``(    0, 1000)`` for maximization, or
+        * ``(-1000,    0)`` for minimization
 
     are present, a warning is printed.
 
@@ -89,9 +89,9 @@ def sensitive_optimize(model,pFBA=False):
     #. Additionally, this function checks if the objective reaction has unusual bounds.
        I.e., if other bounds than (lower bound, upper bound)
 
-        * -1000/1000 for maximization and minimization,
-        *     0/1000 for maximization, or
-        * -1000/   0 for minimization.
+        * ``(-1000, 1000)`` for maximization and minimization,
+        * ``(    0, 1000)`` for maximization, or
+        * ``(-1000,    0)`` for minimization
 
        are present, a warning is printed.
 

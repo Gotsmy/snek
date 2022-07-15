@@ -13,9 +13,9 @@ def get_constrained_reactions(model):
     Returns data frames of all reactions that have constrained flux bounds.
     I.e. something else than (lower bound, upper bound)
 
-    * -1000/1000,
-    *     0/1000, or
-    * -1000/   0.
+    * ``(-1000, 1000)``,
+    * ``(    0, 1000)``, or
+    * ``(-1000,    0)``.
 
     Parameters
     ----------
@@ -25,9 +25,6 @@ def get_constrained_reactions(model):
     Returns
     -------
         constrained  :  pandas.DataFrame
-                        Pandas data frame of constrained reactions with name,
-                        id, lower bound, upper bound as columns.
-        blocked      :  pandas.DataFrame
                         Pandas data frame of constrained reactions with name,
                         id, lower bound, upper bound as columns.
     '''
@@ -42,13 +39,13 @@ def get_constrained_reactions(model):
         elif reaction.bounds == (-1000,0):
             pass
         elif reaction.bounds == (0,0):
-            blocked.append([reaction.name,reaction.id,*reaction.bounds])
+            constrained.append([reaction.name,reaction.id,*reaction.bounds])
         else:
             constrained.append([reaction.name,reaction.id,*reaction.bounds])
-    blocked = pd.DataFrame(blocked,columns=['name','id','lower_bound','upper_bound'])
     constrained = pd.DataFrame(constrained,columns=['name','id','lower_bound','upper_bound'])
+    constrained.index = constrained['id']
 
-    return constrained, blocked
+    return constrained
 
 def in_bounds(model):
     """
