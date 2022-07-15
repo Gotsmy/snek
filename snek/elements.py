@@ -4,7 +4,9 @@ the calculation of molecular weights from sum formulas.
 '''
 
 import pkg_resources
+import numpy as np
 import pandas as pd
+from .core import sensitive_optimize
 
 def count_atom(formula,element):
     """
@@ -200,3 +202,85 @@ def sum_formula_pDNA(sequence,return_dic=False):
         return sum_formula,sum_formula_dic
     else:
         return sum_formula
+
+def element_flux_coefficient(model,element,reaction):
+    """
+    Returns the amount of an user-defined chemical element consumed/produced in a CobraPy reaction.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        CobraPy model.
+    element : Str
+        Chemical element as string, e.g. 'C'.
+    reaction : Str
+        Cobra reaction id as string.
+
+    Returns
+    -------
+    element_flux_coefficient : Float
+        Elemental flux of the reaction (only non-0 when not mass balanced).
+    """
+
+    element_flux_coefficient = 0
+    for meta in model.reactions.get_by_id(reaction).metabolites:
+        stoichiometric_coefficient = model.reactions.get_by_id(reaction).metabolites[meta]
+        number_of_atoms = count_atom(meta.formula,element)
+        element_flux_coefficient += stoichiometric_coefficient * number_of_atoms
+
+    return element_flux_coefficient
+
+def element_fluxes(model,element,solution=None):
+    """
+    Returns dictionary of non-zero element fluxes.
+    Element fluxes are only non-zero when a reaction is not mass balanced,
+    typically exchange, drain, and sink reactions.
+
+    If no solution object is provided a pFBA is performed.
+    If a solution object is provided metabolite fluxes are extracted from there.
+    We recommend to do this analysis only solutions from pFBA.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+            CobraPy model.
+    element : Str
+        Chemical element as string, e.g. 'C'.
+    solution : cobra.core.solution.Solution, default=None
+        CobraPy solution object.
+
+    Returns
+    -------
+    element_fluxes : pandas.DataFrame
+               Pandas dataframe of non-zero element fluxes. The sign of fluxes
+               corresponds to the sign of fluxes in the solution object.
+               The index of the data frame corresponds to reaction ids,
+               the first column to the absolute element flux in mmol/(g biomass h),
+               and the second column to the relative element flux in %.
+    """
+
+    if isinstance(solution,type(None)):
+        solution = sensitive_optimize(model,pFBA=True)
+
+    # calculate fluxes
+    element_fluxes = {}
+    for r in model.reactions:
+        rate = element_flux_coefficient(model,element,r.id)
+        if rate != 0 and solution.fluxes[r.id] != 0:
+            element_fluxes[r.id] = [solution.fluxes[r.id]*rate]
+
+    # do a sanity check
+    control = 0
+    for flux in element_fluxes:
+        control += element_fluxes[flux][0]
+    assert np.isclose(control,0,atol=model.tolerance,rtol=0), 'Fluxes do not add up. Are all non-boundary reactions mass balanced?'
+
+    # create nice dataframe
+    element_fluxes = pd.DataFrame(element_fluxes).T
+    abs_col_name = f'{element}_flux'
+    element_fluxes.columns = [abs_col_name]
+    element_fluxes = element_fluxes.sort_values(abs_col_name,ascending=False)
+    total_flux = np.sum(element_fluxes[element_fluxes[abs_col_name] > 0].values)
+    element_fluxes.insert(1,abs_col_name+'%',element_fluxes[abs_col_name]/total_flux*100)
+
+    return element_fluxes
