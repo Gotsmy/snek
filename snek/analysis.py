@@ -43,7 +43,7 @@ def get_constrained_reactions(model):
             constrained.append([reaction.name,reaction.id,*reaction.bounds])
     constrained = pd.DataFrame(constrained,columns=['name','id','lower_bound','upper_bound'])
     constrained.index = constrained['id'].values
-
+    constrained = constrained.sort_values(['upper_bound','lower_bound'],ascending=False)
     return constrained
 
 def in_bounds(model):
