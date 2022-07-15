@@ -269,6 +269,10 @@ def element_fluxes(model,element,solution=None):
         if rate != 0 and solution.fluxes[r.id] != 0:
             element_fluxes[r.id] = [solution.fluxes[r.id]*rate]
 
+    # raise error if there are no fluxes in the solution
+    if len(element_fluxes) == 0:
+        raise ValueError(f'No {element} fluxes were found.')
+
     # do a sanity check
     control = 0
     for flux in element_fluxes:
