@@ -30,7 +30,6 @@ def get_constrained_reactions(model):
     '''
 
     constrained = []
-    blocked = []
     for reaction in model.reactions:
         if reaction.bounds == (0,1000):
             pass
