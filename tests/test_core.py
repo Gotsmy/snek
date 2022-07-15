@@ -1,10 +1,12 @@
+import os
 import pytest
 import cobra
 import snek
 
 @pytest.fixture
 def model():
-    model = cobra.io.load_model("textbook")
+    location = os.path.dirname(os.path.abspath(__file__))
+    model = cobra.io.read_sbml_model(os.path.join(location,'data','textbook.xml'))
     return model
 
 # check snek.sensitive_optimize()
