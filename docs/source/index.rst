@@ -6,7 +6,7 @@
 Welcome to Snek's documentation!
 ================================
 
-.. include:: welcome.md
+.. include:: data/welcome.md
    :parser: myst_parser.sphinx_
 
 .. toctree::
@@ -14,6 +14,7 @@ Welcome to Snek's documentation!
    :caption: Contents
 
    readme
+   data/demo
    snek
 
 Indices and Tables
