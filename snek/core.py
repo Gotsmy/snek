@@ -7,7 +7,7 @@ The core module contains simple wrappers to important cobra functions that do ad
 The functions can also be called with ``snek.<function>``.
 '''
 
-import warnings
+import logging
 import cobra
 
 def set_objective(model,reaction,direction='max'):
@@ -40,9 +40,9 @@ def set_objective(model,reaction,direction='max'):
     if model.reactions.get_by_id(reaction).upper_bound == 1000 and model.reactions.get_by_id(reaction).lower_bound == -1000:
         pass
     elif direction == 'min' and (model.reactions.get_by_id(reaction).lower_bound != -1000 or model.reactions.get_by_id(reaction).upper_bound != 0):
-        warnings.warn('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
+        logging.warn('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
     elif direction == 'max' and (model.reactions.get_by_id(reaction).lower_bound != 0 or model.reactions.get_by_id(reaction).upper_bound != 1000):
-        warnings.warn('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
+        logging.warn('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
 
     model.objective = reaction
     model.objective_direction = direction
@@ -117,7 +117,7 @@ def sensitive_optimize(model,pFBA=False):
 
     if pFBA:
         if get_solver(model) == 'glpk':
-            warnings.warn('You are performing pFBA with the GLPK Solver. This can lead to inconsistent results.')
+            logging.warn('You are performing pFBA with the GLPK Solver. This can lead to inconsistent results.')
         solution = cobra.flux_analysis.parsimonious.pfba(model)
     else:
         solution = model.optimize()
