@@ -1,11 +1,9 @@
 # Introduction
 
-Snek provides quality of Life Functions for CobraPy.
-
+Snek provides quality of Life Functions for CobraPy. <br>
+There are several reasons why this module is helpful for CobraPy users:
 
 ## 1. Core Module
-
-There are three reasons why this module is helpful for CobraPy users:
 
 ### 1.1 Ensuring Correct Spelling
 
@@ -41,7 +39,7 @@ basic functions that easily access this hidden functionalities.
 
 ### 1.4 New Functions
 
-We added some new functions to easily search for reactions and metabolites as well. 
+We added some new functions to easily search for reactions and metabolites as well.
 
 * ```snek.find_biomass_reaction()```
 * ```snek.find_reaction()```
