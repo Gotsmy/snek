@@ -1,9 +1,4 @@
 '''
-The core module contains simple wrappers to important cobra functions that do additional checks:
-
-* ensuring correct spelling,
-* check for logical errors.
-
 The functions can also be called with ``snek.<function>``.
 '''
 
