@@ -20,45 +20,51 @@ Reaction.lower_buond = 5 # no error raised, but the bound is not updated
 This can happen frequently and is hard to debug. Thus following functions ensure
 correct spelling:
 
-* ```set_bounds()```
-* ```set_objective()```
+* ```snek.set_bounds()```
+* ```snek.set_objective()```
 
-### 1.2 Checking for Logical Errors
+### 1.2 Checking for Unintended Results
 
 CobraPy gives the user a lot of freedom. However, here we implemented some basic
-checks that ensure that no logical errors are made and prints warning if this is true.
+checks that ensure that no unintended errors are made and prints warning if this is true.
 
-* ```sensitive_optimize()```
-* ```set_objective()```
+* ```snek.sensitive_optimize()```
+* ```snek.set_objective()```
 
 ### 1.3 Easy Programmatic Access
 
 Certain functionalities are somewhat "hidden" in CobraPy. Here we implemented some
 basic functions that easily access this hidden functionalities.
 
-* ```get_objective()```
-* ```get_solver()```
-* ```find_biomass_reaction()```
-
+* ```snek.get_objective()```
+* ```snek.get_solver()```
+* ```snek.find_biomass_reaction()```
+* ```snek.find_reaction()```
+* ```snek.find_metabolite()```
 
 ## 2. Elements Module
 
-This moduel contains several functions for the elemental analysis of molecules
-and the calculation of molecular weights from sum formulas. For more information
-on available functions just do
+This module contains several functions for the elemental analysis of molecules
+and the calculation of molecular weights from sum formulas. Following functions
+are currently available:
 
-```
-import snek
-dir(snek.elements)
-```
-or visit the documentation.
+* ```snek.elements.count_atom()```
+* ```snek.elements.element_composition()```
+* ```snek.elements.element_flux_coefficient()```
+* ```snek.elements.element_fluxes()```
+* ```snek.elements.molecular_weight()```
+* ```snek.elements.sum_formula_pDNA()```
+* ```snek.elements.unique_elements()```
 
 ## 3. Analysis Module
 
-More specialized functions to investigate CobraPy models and to look at fluxes. For more information on available functions just do
+More specialized functions to investigate CobraPy models and to look at fluxes.
+Following functions are currently available.
 
-```
-import snek
-dir(snek.analysis)
-```
-or visit the documentation.
+* ```snek.elements.get_constrained_reactions()```
+* ```snek.elements.in_bounds()```
+* ```snek.elements.in_flux()```
+* ```snek.elements.investigate_network()```
+* ```snek.elements.investigate_network_solution()```
+* ```snek.elements.out_bounds()```
+* ```snek.elements.out_flux()```
