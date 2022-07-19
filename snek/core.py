@@ -121,7 +121,7 @@ def sensitive_optimize(model,pFBA=False):
     else:
         solution = model.optimize()
     if solution.status == 'infeasible':
-        raise ValueError('Solution is infeasible')
+        raise logging.error(f'Solution status is {solution.status}.')
     else:
         return solution
 
