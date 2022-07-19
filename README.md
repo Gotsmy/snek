@@ -38,6 +38,11 @@ basic functions that easily access this hidden functionalities.
 
 * ```snek.get_objective()```
 * ```snek.get_solver()```
+
+### 1.4 New Functions
+
+We added some new functions to easily search for reactions and metabolites as well. 
+
 * ```snek.find_biomass_reaction()```
 * ```snek.find_reaction()```
 * ```snek.find_metabolite()```
