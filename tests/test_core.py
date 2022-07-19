@@ -31,6 +31,18 @@ def test_sensitive_optimize(model):
 
 # TODO: check snek.find_biomass_reaction
 
+# check find_reaction
+def test_find_reaction(model):
+    df = snek.find_reaction(model,'su')
+    assert df.shape == (5, 2)
+    assert list(df['id']) == ['EX_succ_e', 'SUCCt2_2', 'SUCCt3', 'SUCDi', 'SUCOAS']
+
+# check find_metabolite
+def test_find_metabolite(model):
+    df = snek.find_metabolite(model,'coa')
+    assert df.shape == (3, 2)
+    assert list(df['id']) == ['accoa_c', 'coa_c', 'succoa_c']
+
 # check snek.get_objective()
 def test_get_objetive(model):
     model.objective = 'EX_glc__D_e'

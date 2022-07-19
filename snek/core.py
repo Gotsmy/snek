@@ -8,6 +8,7 @@ The functions can also be called with ``snek.<function>``.
 '''
 
 import logging
+import pandas as pd
 import cobra
 
 def set_objective(model,reaction,direction='max'):
@@ -82,8 +83,8 @@ def sensitive_optimize(model,pFBA=False):
 
     #. In contrast to the original implementation where fluxes can still be extracted from
        infeasible solutions (e.g. ``solution[reaction_id] = <float>``, even if
-       ``solution.status == 'infeasible'``), this function raises a
-       ValueError if the solver is infeasible.
+       ``solution.status == 'infeasible'``), this function raises an
+       Error if the solver is infeasible.
 
     #. Additionally, this function checks if the objective reaction has unusual bounds.
        I.e., if other bounds than (lower bound, upper bound)
@@ -108,6 +109,11 @@ def sensitive_optimize(model,pFBA=False):
     -------
         solution : cobra.core.solution.Solution
             Optimized solution if ``solution.status != 'infeasible'``.
+
+    Raises
+    ------
+        Error
+            If the solver status is infeasible.
     '''
 
     objective_reaction_id = get_objective(model)
@@ -141,6 +147,62 @@ def find_biomass_reaction(model):
         if 'BIOMASS' in reaction.name.upper() or 'BIOMASS' in reaction.id.upper():
             print(reaction.id)
 
+def find_reaction(model,name):
+    '''
+    Searches ``<name>`` string in reaction names or reaction IDs.
+    Not sensitive to capitalization.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        CobraPy Model to be searched.
+    name : Str
+        Part of reaction name or ID.
+
+    Returns
+    -------
+    reactions : pandas.DataFrame
+        Data frame of reaction names and reaction IDs that contain the searched phrase.
+    '''
+
+    # Credits to Martin Völkl for the idea
+
+    reactions = pd.DataFrame(columns=['id','name'])
+    for reaction in model.reactions:
+        if name.upper() in reaction.name.upper() or name.upper() in reaction.id.upper():
+            reactions.loc[reaction.id] = [reaction.id,reaction.name]
+    reactions.reset_index(inplace=True,drop=True)
+
+    return reactions
+
+def find_metabolite(model,name):
+    '''
+    Searches ``<name>`` string in metabolite names or metabolite IDs.
+    Not sensitive to capitalization.
+
+    Parameters
+    ----------
+    model : cobra.core.model.Model
+        CobraPy Model to be searched.
+    name : Str
+        Part of metabolite name or ID.
+
+    Returns
+    -------
+    metabolites : pandas.DataFrame
+        Data frame of metabolite names and metabolite IDs that contain the searched phrase.
+    '''
+
+    # Credits to Martin Völkl for the idea
+
+    metabolites = pd.DataFrame(columns=['id','name'])
+    for metabolite in model.metabolites:
+        if name.upper() in metabolite.name.upper() or name.upper() in metabolite.id.upper():
+            metabolites.loc[metabolite.id] = [metabolite.id,metabolite.name]
+    metabolites.reset_index(inplace=True,drop=True)
+
+    return metabolites
+
 def get_objective(model):
     '''
     Returns the reaction ID of a single reaction objective of a CobraPy model.
@@ -173,6 +235,11 @@ def get_solver(model):
     -------
         solver_name : Str
             Solver name as string.
+
+    Raises
+    ------
+        Error
+            If the solver is not in ``['glpk', 'glpk_exact', 'cplex', 'scipy', 'gurobi']``.
     '''
 
     from optlang import available_solvers
@@ -205,6 +272,6 @@ def get_solver(model):
     elif isinstance(model.solver,gurobi_Model):
         solver_name = 'gurobi'
     else:
-        raise ValueError('Solver cannot be identified.')
+        raise logging.error('Solver cannot be identified.')
 
     return solver_name
