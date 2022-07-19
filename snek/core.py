@@ -24,29 +24,28 @@ def set_objective(model,reaction,direction='max'):
 
     Parameters
     ----------
-        model       : cobra.core.model.Model
-                      CobraPy Model
-        reaction    : Str
-                      Objective reaction ID.
-        direction   : Str, default='max'
-                      Objective direction, either ``'min'`` or ``'max'``.
+        model : cobra.core.model.Model
+            CobraPy Model.
+        reaction : Str
+            Objective reaction ID.
+        direction : Str, default='max'
+            Objective direction, either ``'min'`` or ``'max'``.
 
     Returns
     -------
-        model       : cobra.core.model.Model
-                      Updated CobraPy Model.
+        None : None
+            The given model object is updated.
     '''
 
     if model.reactions.get_by_id(reaction).upper_bound == 1000 and model.reactions.get_by_id(reaction).lower_bound == -1000:
         pass
     elif direction == 'min' and (model.reactions.get_by_id(reaction).lower_bound != -1000 or model.reactions.get_by_id(reaction).upper_bound != 0):
-        logging.warn('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
+        logging.warning('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
     elif direction == 'max' and (model.reactions.get_by_id(reaction).lower_bound != 0 or model.reactions.get_by_id(reaction).upper_bound != 1000):
-        logging.warn('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
+        logging.warning('The objective reaction has a lower bound at {:.2f} and a upper bound at {:.2f}. This could lead to problems during optimization.'.format(model.reactions.get_by_id(reaction).lower_bound,model.reactions.get_by_id(reaction).upper_bound))
 
     model.objective = reaction
     model.objective_direction = direction
-    return model
 
 def set_bounds(model,reaction,lb=None,ub=None):
     '''
@@ -54,19 +53,19 @@ def set_bounds(model,reaction,lb=None,ub=None):
 
     Parameters
     ----------
-        model      : cobra.core.model.Model
-                     CobraPy Model.
-        reaction   : Str
-                     Reaction ID
-        lb         : Float, default=None
-                     Lower bound.
-        ub         : Float, default=None
-                     Upper bound.
+        model : cobra.core.model.Model
+            CobraPy Model.
+        reaction : Str
+            Reaction ID.
+        lb : Float, default=None
+            Lower bound. If None, the bound is not updated.
+        ub : Float, default=None
+            Upper bound. If None, the bound is not updated.
 
     Returns
     -------
-        model      : cobra.core.model.Model
-                     Updated CobraPy Model.
+        None : None
+            The given model object is updated.
     '''
 
     if lb is None:
@@ -100,24 +99,24 @@ def sensitive_optimize(model,pFBA=False):
 
     Parameters
     ----------
-        model    : cobra.core.model.Model
-                   CobraPy Model.
+        model : cobra.core.model.Model
+            CobraPy Model.
         pFBA : Bool, default=False
             Wether or not to do parsimonious FBA.
 
     Returns
     -------
         solution : cobra.core.solution.Solution
-                   Optimized solution if ``solution.status != 'infeasible'``.
+            Optimized solution if ``solution.status != 'infeasible'``.
     '''
 
     objective_reaction_id = get_objective(model)
     objective_direction = model.objective_direction
-    model = set_objective(model,objective_reaction_id,objective_direction)
+    set_objective(model,objective_reaction_id,objective_direction)
 
     if pFBA:
         if get_solver(model) == 'glpk':
-            logging.warn('You are performing pFBA with the GLPK Solver. This can lead to inconsistent results.')
+            logging.warning('You are performing pFBA with the GLPK Solver. This can lead to inconsistent results.')
         solution = cobra.flux_analysis.parsimonious.pfba(model)
     else:
         solution = model.optimize()

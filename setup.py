@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="snek",
-    version="0.01",
+    version="0.02",
     author="Mathias Gotsmy",
     author_email="mathias.gotsmy@univie.ac.at",
     description="Convenience functions for COBRApy.",
