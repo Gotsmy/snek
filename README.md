@@ -64,10 +64,10 @@ are currently available:
 More specialized functions to investigate CobraPy models and to look at fluxes.
 Following functions are currently available.
 
-* ```snek.elements.get_constrained_reactions()```
-* ```snek.elements.in_bounds()```
-* ```snek.elements.in_flux()```
-* ```snek.elements.investigate_network()```
-* ```snek.elements.investigate_network_solution()```
-* ```snek.elements.out_bounds()```
-* ```snek.elements.out_flux()```
+* ```snek.analysis.get_constrained_reactions()```
+* ```snek.analysis.in_bounds()```
+* ```snek.analysis.in_flux()```
+* ```snek.analysis.investigate_network()```
+* ```snek.analysis.investigate_network_solution()```
+* ```snek.analysis.out_bounds()```
+* ```snek.analysis.out_flux()```
