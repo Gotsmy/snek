@@ -70,7 +70,6 @@ def set_bounds(model,reaction,lb=None,ub=None):
         ub = model.reactions.get_by_id(reaction).upper_bound
 
     model.reactions.get_by_id(reaction).bounds = float(lb),float(ub)
-    return model
 
 def sensitive_optimize(model,pFBA=False):
     '''
