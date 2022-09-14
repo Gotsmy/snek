@@ -6,6 +6,11 @@
 Welcome to Snek's Documentation!
 ================================
 
+.. image:: data/logo.png
+  :target: index.html
+  :width: 400
+  :alt: Icon
+
 .. include:: data/welcome.md
    :parser: myst_parser.sphinx_
 
