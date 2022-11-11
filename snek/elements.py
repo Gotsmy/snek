@@ -7,6 +7,7 @@ import pkg_resources
 import numpy as np
 import pandas as pd
 from .core import sensitive_optimize
+from collections import Counter
 
 def count_atom(formula,element):
     """
@@ -102,6 +103,9 @@ def element_composition(formula):
                         and number of atoms per element as items,
                         e.g. ``{'H': 2.0, 'O': 1.0}``.
 
+    See Also
+    --------
+    element_formula : Inverse function to ``element_composition``.
     '''
 
     list_elements = unique_elements(formula)
@@ -110,6 +114,43 @@ def element_composition(formula):
         composition[element] = count_atom(formula,element)
 
     return composition
+
+def element_formula(composition,n_decimals=None):
+    '''
+    Get the chemical sum formula of a molecule as string.
+
+    Parameters
+    ----------
+        composition : Dict
+            Dictionary with unique elements as keys
+            and number of atoms per element as items,
+            e.g. ``{'H': 2.0, 'O': 1.0}``.
+        n_decimals : Int or None
+            How many decimals places should be rounded to. If ``None``, all
+            available decimal places, otherwise ``n_decimals``.
+    Returns
+    -------
+    formula  :  Str
+                    Chemical formula, e.g. ``'H2O'``.
+
+    See Also
+    --------
+    element_composition : Inverse function to ``element_formula``.
+    '''
+
+    formula = ''
+    for element_name,element_count in sorted(composition.items()):
+        formula += element_name
+        if n_decimals is None:
+            formula += str(element_count)
+        else:
+            if n_decimals == 0:
+                round_decimals = None
+            else:
+                round_decimals = n_decimals
+            formula += str(round(element_count,round_decimals))
+
+    return formula
 
 def molecular_weight(sum_formula):
     '''
@@ -148,8 +189,11 @@ def molecular_weight(sum_formula):
 
 def sum_formula_pDNA(sequence,return_dic=False):
     '''
-    Returns the chemical sum formula of the pDNA molecule.
-    Attention: this only works for circular, double stranded DNA!
+    Returns the chemical sum formula of the non-charged pDNA molecule.
+
+    Note
+    ----
+    The sum formula is only correct for circular, double stranded DNA.
 
     Parameters
     ----------
@@ -197,6 +241,62 @@ def sum_formula_pDNA(sequence,return_dic=False):
     for element in sum_formula_dic:
         sum_formula += element
         sum_formula += str(round(sum_formula_dic[element]))
+
+    if return_dic:
+        return sum_formula,sum_formula_dic
+    else:
+        return sum_formula
+
+from collections import Counter
+
+def sum_formula_protein(sequence,return_dic=False):
+    '''
+    Returns the chemical sum formula of the non-charged protein.
+
+    Parameters
+    ----------
+    sequence : Str
+        String of amino acid sequence (only one-letter code of 20 conventional amino acids allowed).
+    return_dic : Bool, default=False
+        If True, additionally a dictionary with elements and counts in returned.
+
+    Returns
+    -------
+    sum_formula : Str
+        Chemical sum formula of the protein.
+    sum_formula_dic : Dict
+        Dictionary with elements and counts, only returned if ``return_dic = True``.
+    '''
+
+    # chemical formulas of all amino acids
+    formula_dic = {'A': 'C3H7NO2', 'C': 'C3H7NO2S', 'D': 'C4H6NO4', 'E': 'C5H8NO4', 'F': 'C9H11NO2', 'G': 'C2H5NO2',
+               'H': 'C6H9N3O2', 'I': 'C6H13NO2', 'K': 'C6H15N2O2', 'L': 'C6H13NO2', 'M': 'C5H11NO2S', 'N': 'C4H8N2O3',
+               'P': 'C5H9NO2', 'Q': 'C5H10N2O3', 'R': 'C6H15N4O2', 'S': 'C3H7NO3', 'T': 'C4H9NO3', 'V': 'C5H11NO2',
+               'W': 'C11H12N2O2', 'Y': 'C9H11NO3'}
+    # initialize total sum formula
+    sum_formula_dic = {'C':0,'H':0,'N':0,'O':0,'S':0}
+    # initialize sum of amino acids
+    sum_aa = 0
+    # number of amino acids in sequence
+    sequence_dic = Counter(sequence)
+
+    # check if all amino acids are covered by formula_dic
+    for AA in sequence:
+        assert AA in formula_dic.keys(), f"Non-conventional amio acids are not supported: {AA}."
+
+
+    # just sum up all atoms per amino acid and its count in the protein
+    for AA, AA_count in sequence_dic.items():
+        sum_aa      += AA_count
+        tmp_elements = element_composition(formula_dic[AA])
+        for element,element_count in tmp_elements.items():
+            sum_formula_dic[element] += element_count * AA_count
+
+    # remove one H2O for every peptide synthesis reaction (i.e., the number of amino acids in the protein -1)
+    sum_formula_dic['O'] -= sum_aa-1
+    sum_formula_dic['H'] -= (sum_aa-1) * 2
+
+    sum_formula = element_formula(sum_formula_dic,n_decimals=0)
 
     if return_dic:
         return sum_formula,sum_formula_dic

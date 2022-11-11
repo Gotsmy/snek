@@ -23,8 +23,13 @@ def test_unique_elements():
 
 # check snek.elements.element_composition
 def test_element_composition():
-    all = snek.elements.element_composition('C16H15N3.99')
-    assert all == {'C':16,'H':15,'N':3.99}
+    composition = snek.elements.element_composition('C16H15N3.99')
+    assert composition == {'C':16,'H':15,'N':3.99}
+
+# check snek.elements.element_formula
+def test_element_formula():
+    formula = snek.elements.element_formula({'C':16,'H':15,'N':3.99})
+    assert formula == 'C16H15N3.99'
 
 # check snek.elements.molecular_weight
 def test_molecular_weight():
@@ -44,11 +49,20 @@ def test_sum_formula_pDNA():
     # assert that the error is smaller than 0.1
     assert np.abs((test_mw_my_implementation-test_mw_bio)/np.mean([test_mw_bio,test_mw_my_implementation])*100) < .1
 
+# check snek.elements.sum_formula_protein
+def test_sum_formula_protein():
+    # check sum formula of a simple protein 'ACLI'
+    # sum formula calculated with https://spin.niddk.nih.gov/clore/Software/A205.html
+    true_sum_formula = 'C18H34N4O5S1'
+    protein_sequence = 'ACLI'
+    snek_sum_formula = snek.elements.sum_formula_protein(protein_sequence)
+    assert true_sum_formula == snek_sum_formula
+
 # check snek.elements.element_flux_coefficient
 def test_element_flux_coefficient(model):
     c_flux_coefficient = snek.elements.element_flux_coefficient(model,'C','EX_glc__D_e')
     assert c_flux_coefficient == -6
-    
+
 # check snek.elements.element_fluxes
 def test_element_fluxes(model):
     C_fluxes = snek.elements.element_fluxes(model,'C')
