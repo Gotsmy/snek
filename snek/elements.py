@@ -115,7 +115,7 @@ def element_composition(formula):
 
     return composition
 
-def element_formula(composition,n_decimals=None):
+def element_formula(composition):
     '''
     Get the chemical sum formula of a molecule as string.
 
@@ -125,9 +125,6 @@ def element_formula(composition,n_decimals=None):
             Dictionary with unique elements as keys
             and number of atoms per element as items,
             e.g. ``{'H': 2.0, 'O': 1.0}``.
-        n_decimals : Int or None
-            How many decimals places should be rounded to. If ``None``, all
-            available decimal places, otherwise ``n_decimals``.
     Returns
     -------
     formula  :  Str
@@ -141,14 +138,10 @@ def element_formula(composition,n_decimals=None):
     formula = ''
     for element_name,element_count in sorted(composition.items()):
         formula += element_name
-        if n_decimals is None:
-            formula += str(element_count)
+        if np.isclose(element_count,round(element_count),rtol=0):
+            formula += str(round(element_count))
         else:
-            if n_decimals == 0:
-                round_decimals = None
-            else:
-                round_decimals = n_decimals
-            formula += str(round(element_count,round_decimals))
+            formula += str(element_count)
 
     return formula
 
@@ -296,7 +289,7 @@ def sum_formula_protein(sequence,return_dic=False):
     sum_formula_dic['O'] -= sum_aa-1
     sum_formula_dic['H'] -= (sum_aa-1) * 2
 
-    sum_formula = element_formula(sum_formula_dic,n_decimals=0)
+    sum_formula = element_formula(sum_formula_dic)
 
     if return_dic:
         return sum_formula,sum_formula_dic
