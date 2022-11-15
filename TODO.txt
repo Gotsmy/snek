@@ -1,3 +1,2 @@
 * some advanced exchange reactions function that catches all reactions that are not mass balanced, not only exchange reactions <- this is actually done by model.boundaries (if the model is set up correctly)
 * include snek.citation() function
-* fix several typos in the demo.
