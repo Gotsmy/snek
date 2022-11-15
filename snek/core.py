@@ -135,11 +135,14 @@ def find_biomass_reaction(model):
     ----------
     model : cobra.core.model.Model
         CobraPy Model to be searched.
+
+    Returns
+    -------
+    reactions : pandas.DataFrame
+        Data frame of reaction names and reaction IDs that contain 'Biomass'.
     '''
 
-    for reaction in model.reactions:
-        if 'BIOMASS' in reaction.name.upper() or 'BIOMASS' in reaction.id.upper():
-            print(reaction.id)
+    return find_reaction(model,'biomass')
 
 def find_reaction(model,name):
     '''

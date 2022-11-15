@@ -21,14 +21,14 @@ def test_unique_elements():
     elements = snek.elements.unique_elements('C16H15N3.99')
     assert len(elements) == 3
 
-# check snek.elements.element_composition
-def test_element_composition():
-    composition = snek.elements.element_composition('C16H15N3.99')
-    assert composition == {'C':16,'H':15,'N':3.99}
+# check snek.elements.formula_to_dictionary
+def test_formula_to_dictionary():
+    dictionary = snek.elements.formula_to_dictionary('C16H15N3.99')
+    assert dictionary == {'C':16,'H':15,'N':3.99}
 
 # check snek.elements.element_formula
-def test_element_formula():
-    formula = snek.elements.element_formula({'C':16,'H':15,'N':3.99})
+def test_dictionary_to_formula():
+    formula = snek.elements.dictionary_to_formula({'C':16,'H':15,'N':3.99})
     assert formula == 'C16H15N3.99'
 
 # check snek.elements.molecular_weight
@@ -38,24 +38,24 @@ def test_molecular_weight():
     dummy.formula = formula
     assert np.isclose(dummy.formula_weight,snek.elements.molecular_weight(formula))
 
-# check snek.elements.sum_formula_pDNA
-def test_sum_formula_pDNA():
+# check snek.elements.get_pDNA_formula
+def test_get_pDNA_formula():
     # test if my two functions work as intended and compare results to the Bio.SeqUtils.molecular_weight function.
     # the big difference: with my functions I also get the sum formula of the pDNA
     sequence = 'ATCG'*100
-    test_sum_formula, test_sum_formula_dic = snek.elements.sum_formula_pDNA(sequence,return_dic=True)
+    test_sum_formula, test_sum_formula_dic = snek.elements.get_pDNA_formula(sequence,return_dict=True)
     test_mw_my_implementation = snek.elements.molecular_weight(test_sum_formula)
     test_mw_bio = SeqUtils.molecular_weight(sequence,seq_type='DNA',double_stranded=True,circular=True,monoisotopic=False)
     # assert that the error is smaller than 0.1
     assert np.abs((test_mw_my_implementation-test_mw_bio)/np.mean([test_mw_bio,test_mw_my_implementation])*100) < .1
 
-# check snek.elements.sum_formula_protein
-def test_sum_formula_protein():
+# check snek.elements.get_protein_formula
+def test_get_protein_formula():
     # check sum formula of a simple protein 'ACLI'
     # sum formula calculated with https://spin.niddk.nih.gov/clore/Software/A205.html
     true_sum_formula = 'C18H34N4O5S1'
     protein_sequence = 'ACLI'
-    snek_sum_formula = snek.elements.sum_formula_protein(protein_sequence)
+    snek_sum_formula = snek.elements.get_protein_formula(protein_sequence)
     assert true_sum_formula == snek_sum_formula
 
 # check snek.elements.element_flux_coefficient

@@ -29,7 +29,10 @@ def test_sensitive_optimize(model):
     # check warning for sensitive_optimize pFBA + glpk solver
     # snek.sensitive_optimize(model,pFBA=True)
 
-# TODO: check snek.find_biomass_reaction
+# check snek.find_biomass_reaction()
+def test_find_biomass_reaction(model):
+    df = snek.find_biomass_reaction(model)
+    assert df.loc[0,'id'] == 'Biomass_Ecoli_core'
 
 # check find_reaction
 def test_find_reaction(model):

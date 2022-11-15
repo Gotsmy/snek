@@ -52,12 +52,15 @@ and the calculation of molecular weights from sum formulas. Following functions
 are currently available:
 
 * ```snek.elements.count_atom()```
-* ```snek.elements.element_composition()```
+* ```snek.elements.unique_elements()```
+* ```snek.elements.formula_to_dictionary()```
+* ```snek.elements.dictionary_to_formula()```
 * ```snek.elements.element_flux_coefficient()```
 * ```snek.elements.element_fluxes()```
 * ```snek.elements.molecular_weight()```
-* ```snek.elements.sum_formula_pDNA()```
-* ```snek.elements.unique_elements()```
+* ```snek.elements.get_pDNA_formula()```
+* ```snek.elements.get_protein_formula()```
+
 
 ## 3. Analysis Module
 

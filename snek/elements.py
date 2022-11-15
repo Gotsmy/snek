@@ -86,42 +86,42 @@ def unique_elements(formula):
 
     return list_elements
 
-def element_composition(formula):
+def formula_to_dictionary(formula):
     '''
     Get the elemental composition of a molecule as dictionary.
     Keys correspond to elements, values to their number of appearance.
 
     Parameters
     ----------
-        formula  :  Str
-                    Chemical formula, e.g. ``'H2O'``.
+        formula  : Str
+            Chemical formula, e.g. ``'H2O'``.
 
     Returns
     -------
-        composition :   Dict
-                        Dictionary with unique elements as keys
-                        and number of atoms per element as items,
-                        e.g. ``{'H': 2.0, 'O': 1.0}``.
+        dictionary : Dict
+            Dictionary with unique elements as keys
+            and number of atoms per element as items,
+            e.g. ``{'H': 2.0, 'O': 1.0}``.
 
     See Also
     --------
-    element_formula : Inverse function to ``element_composition``.
+    dictionary_to_formula : Inverse function to ``formula_to_dictionary``.
     '''
 
     list_elements = unique_elements(formula)
-    composition  = {}
+    dictionary  = {}
     for element in list_elements:
-        composition[element] = count_atom(formula,element)
+        dictionary[element] = count_atom(formula,element)
 
-    return composition
+    return dictionary
 
-def element_formula(composition):
+def dictionary_to_formula(dictionary):
     '''
-    Get the chemical sum formula of a molecule as string.
+    Get the chemical sum formula of a molecule as string from a dictionary.
 
     Parameters
     ----------
-        composition : Dict
+        dictionary : Dict
             Dictionary with unique elements as keys
             and number of atoms per element as items,
             e.g. ``{'H': 2.0, 'O': 1.0}``.
@@ -132,11 +132,11 @@ def element_formula(composition):
 
     See Also
     --------
-    element_composition : Inverse function to ``element_formula``.
+    formula_to_dictionary : Inverse function to ``element_formula``.
     '''
 
     formula = ''
-    for element_name,element_count in sorted(composition.items()):
+    for element_name,element_count in sorted(dictionary.items()):
         formula += element_name
         if np.isclose(element_count,round(element_count),rtol=0):
             formula += str(round(element_count))
@@ -145,13 +145,13 @@ def element_formula(composition):
 
     return formula
 
-def molecular_weight(sum_formula):
+def molecular_weight(formula):
     '''
-    Calculates molecular weight from sum formula. The mass table is derived from the CobraPy package [1]_.
+    Calculates molecular weight from the chemical sum formula. The mass table is derived from the CobraPy package [1]_.
 
     Parameters
     ----------
-    sum_formula : Str
+    formula : Str
         String of chemical sum formula. Capitalization has to be correct.
 
     Returns
@@ -167,20 +167,24 @@ def molecular_weight(sum_formula):
         https://doi.org/10.1186/1752-0509-7-74
     '''
 
-    elements = element_composition(sum_formula)
+    dictionary = formula_to_dictionary(formula)
 
     # the molecular masses of the elements is downloaded from CobraPy
     # https://github.com/opencobra/cobrapy/blob/devel/src/cobra/core/formula.py
     location = pkg_resources.resource_stream(__name__,'data/mol_mass_table.csv')
     mol_mass_table = pd.read_csv(location)
 
+    # check if all elements are covered in the mol_mass_table
+    for element in dictionary:
+        assert element in mol_mass_table.loc[:,'Symbol'].unique(), f'Element {element} not in molecular mass table.'
+
     molecular_weight = 0
-    for element in elements:
-        molecular_weight += mol_mass_table[mol_mass_table['Symbol']==element]['AtomicMass'].values[0]*elements[element]
+    for element,number_of_atoms in dictionary.items():
+        molecular_weight += mol_mass_table[mol_mass_table['Symbol']==element]['AtomicMass'].values[0]*number_of_atoms
 
     return molecular_weight
 
-def sum_formula_pDNA(sequence,return_dic=False):
+def get_pDNA_formula(sequence,return_dict=False):
     '''
     Returns the chemical sum formula of the non-charged pDNA molecule.
 
@@ -192,7 +196,7 @@ def sum_formula_pDNA(sequence,return_dic=False):
     ----------
     sequence : Str
         String of pDNA sequence (only ``['A','T','C','G']`` are allowed).
-    return_dic : Bool, default=False
+    return_dict : Bool, default=False
         If True, additionally a dictionary with elements and counts in returned.
 
     Returns
@@ -215,34 +219,34 @@ def sum_formula_pDNA(sequence,return_dic=False):
 
     assert len(sequence) == sum([sequence.count(i) for i in base_names])
 
-    sum_formula_dic = {'C':0,'H':0,'N':0,'O':0,'P':0}
+    sum_formula_dict = {'C':0,'H':0,'N':0,'O':0,'P':0}
 
     # forward strand
     for name, formula in zip(base_names,base_formulas_fw):
         tmp_count = sequence.count(name)
-        tmp_elements = element_composition(formula)
+        tmp_elements = formula_to_dictionary(formula)
         for element in tmp_elements:
-                sum_formula_dic[element] += tmp_count * tmp_elements[element]
+                sum_formula_dict[element] += tmp_count * tmp_elements[element]
     # reverse strand
     for name, formula in zip(base_names,base_formulas_rv):
         tmp_count = sequence.count(name)
-        tmp_elements = element_composition(formula)
+        tmp_elements = formula_to_dictionary(formula)
         for element in tmp_elements:
-                sum_formula_dic[element] += tmp_count * tmp_elements[element]
+                sum_formula_dict[element] += tmp_count * tmp_elements[element]
 
     sum_formula = ''
-    for element in sum_formula_dic:
+    for element in sum_formula_dict:
         sum_formula += element
-        sum_formula += str(round(sum_formula_dic[element]))
+        sum_formula += str(round(sum_formula_dict[element]))
 
-    if return_dic:
-        return sum_formula,sum_formula_dic
+    if return_dict:
+        return sum_formula,sum_formula_dict
     else:
         return sum_formula
 
 from collections import Counter
 
-def sum_formula_protein(sequence,return_dic=False):
+def get_protein_formula(sequence,return_dict=False):
     '''
     Returns the chemical sum formula of the non-charged protein.
 
@@ -267,7 +271,7 @@ def sum_formula_protein(sequence,return_dic=False):
                'P': 'C5H9NO2', 'Q': 'C5H10N2O3', 'R': 'C6H15N4O2', 'S': 'C3H7NO3', 'T': 'C4H9NO3', 'V': 'C5H11NO2',
                'W': 'C11H12N2O2', 'Y': 'C9H11NO3'}
     # initialize total sum formula
-    sum_formula_dic = {'C':0,'H':0,'N':0,'O':0,'S':0}
+    sum_formula_dict = {'C':0,'H':0,'N':0,'O':0,'S':0}
     # initialize sum of amino acids
     sum_aa = 0
     # number of amino acids in sequence
@@ -281,18 +285,18 @@ def sum_formula_protein(sequence,return_dic=False):
     # just sum up all atoms per amino acid and its count in the protein
     for AA, AA_count in sequence_dic.items():
         sum_aa      += AA_count
-        tmp_elements = element_composition(formula_dic[AA])
+        tmp_elements = formula_to_dictionary(formula_dic[AA])
         for element,element_count in tmp_elements.items():
-            sum_formula_dic[element] += element_count * AA_count
+            sum_formula_dict[element] += element_count * AA_count
 
     # remove one H2O for every peptide synthesis reaction (i.e., the number of amino acids in the protein -1)
-    sum_formula_dic['O'] -= sum_aa-1
-    sum_formula_dic['H'] -= (sum_aa-1) * 2
+    sum_formula_dict['O'] -= sum_aa-1
+    sum_formula_dict['H'] -= (sum_aa-1) * 2
 
-    sum_formula = element_formula(sum_formula_dic)
+    sum_formula = dictionary_to_formula(sum_formula_dict)
 
-    if return_dic:
-        return sum_formula,sum_formula_dic
+    if return_dict:
+        return sum_formula,sum_formula_dict
     else:
         return sum_formula
 
