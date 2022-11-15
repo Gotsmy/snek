@@ -132,7 +132,7 @@ def dictionary_to_formula(dictionary):
 
     See Also
     --------
-    formula_to_dictionary : Inverse function to ``element_formula``.
+    formula_to_dictionary : Inverse function to ``dictionary_to_formula``.
     '''
 
     formula = ''
