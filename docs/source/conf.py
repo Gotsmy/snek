@@ -23,7 +23,7 @@ copyright = '2022, Mathias Gotsmy'
 author = 'Mathias Gotsmy'
 
 # The full version, including alpha/beta/rc tags
-release = '0.02'
+release = '0.03'
 
 
 # -- General configuration ---------------------------------------------------
