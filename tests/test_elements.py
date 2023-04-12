@@ -70,4 +70,12 @@ def test_element_fluxes(model):
     H_fluxes = snek.elements.element_fluxes(model,'H')
     assert np.isclose(H_fluxes.loc['EX_h2o_e','H_flux'],-58.351654271131565,atol=model.tolerance,rtol=0)
 
+
+# check snek.elements.get_unique_elements
+def test_get_unique_elements(model):
+    assert snek.elements.get_unique_elements(model) == ['C', 'H', 'O', 'P', 'N', 'S']
+    assert snek.elements.get_unique_elements(model.reactions.ACKr) == ['C', 'H', 'O', 'N', 'P']
+    assert snek.elements.get_unique_elements(model.metabolites.ac_c) == ['C', 'H', 'O']
+    assert snek.elements.get_unique_elements("H2O") == ['H', 'O']
+
 print('End of test_elements.py')
