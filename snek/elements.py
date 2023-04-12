@@ -71,7 +71,7 @@ def get_unique_elements(obj):
 
     # test if string
     elif isinstance(obj,str):
-        if _check_for_nonetype(tmp_formula):
+        if _check_for_nonetype(obj):
             nr_none_types += 1
         else:
             list_elements = unique_elements(obj)
@@ -81,7 +81,7 @@ def get_unique_elements(obj):
         logging.warning(f"There is {nr_none_types} metabolite with missing formula.")
     elif nr_none_types > 1:
         logging.warning(f"There are {nr_none_types} metabolites with missing formulae.")
-        
+
     return list_elements
 
 def count_atom(formula,element):
