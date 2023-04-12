@@ -4,10 +4,85 @@ the calculation of molecular weights from sum formulas.
 '''
 
 import pkg_resources
+import logging
 import numpy as np
 import pandas as pd
+import cobra
 from .core import sensitive_optimize
 from collections import Counter
+
+def _check_for_nonetype(formula):
+    '''
+    Check for None types in metabolite formulae.
+    '''
+
+    if formula is None:
+        return True
+    else:
+        return False
+
+def get_unique_elements(obj):
+    '''
+    Get a list of unique elments from either
+
+    * a chemical formula
+    * a CobraPy metabolite object
+    * a CobraPy reaction object
+    * a CobraPy model object.
+
+    When a reaction or a model is parsed, all metabolites of the reaction/model
+    are considered.
+
+    Parameters
+    ----------
+        obj : either Str or cobra.core.metabolite.Metabolite or cobra.core.reaction.Reaction or cobra.core.model.Model
+
+    Returns
+    -------
+    list_elements :  List
+                     List of unique elements, e.g. ``['H','O']``.
+    '''
+
+    # If the chemical formulae of reactions are not define, a None type is returned.
+    # These are excepted, tracked, and a warning is printed.
+    nr_none_types = 0
+
+    # test if metabolite
+    if isinstance(obj,cobra.core.metabolite.Metabolite):
+        tmp_formula = obj.formula
+        if _check_for_nonetype(tmp_formula):
+            nr_none_types += 1
+        else:
+            list_elements = unique_elements(tmp_formula)
+
+    # test if reaction or model
+    elif isinstance(obj,cobra.core.reaction.Reaction) or isinstance(obj,cobra.core.model.Model):
+        list_elements = []
+
+        for metabolite in obj.metabolites:
+            tmp_formula = metabolite.formula
+            if _check_for_nonetype(tmp_formula):
+                nr_none_types += 1
+            else:
+                tmp_element_list = unique_elements(tmp_formula)
+                for element in tmp_element_list:
+                    if element not in list_elements:
+                        list_elements.append(element)
+
+    # test if string
+    elif isinstance(obj,str):
+        if _check_for_nonetype(tmp_formula):
+            nr_none_types += 1
+        else:
+            list_elements = unique_elements(obj)
+
+    # print warning if metabolites are missing chemical formulae
+    if nr_none_types == 1:
+        logging.warning(f"There is {nr_none_types} metabolite with missing formula.")
+    elif nr_none_types > 1:
+        logging.warning(f"There are {nr_none_types} metabolites with missing formulae.")
+        
+    return list_elements
 
 def count_atom(formula,element):
     """
@@ -72,7 +147,7 @@ def unique_elements(formula):
 
     tmp = ''
     for letter in formula:
-        if not letter.isnumeric() and not letter=='.':
+        if not letter.isnumeric() and not letter == '.':
             if letter.isupper():
                 if len(tmp) > 0 and tmp not in list_elements:
                     list_elements.append(tmp)
