@@ -52,6 +52,7 @@ def get_unique_elements(obj):
         tmp_formula = obj.formula
         if _check_for_nonetype(tmp_formula):
             nr_none_types += 1
+            list_elements = []
         else:
             list_elements = unique_elements(tmp_formula)
 
