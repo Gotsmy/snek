@@ -43,7 +43,7 @@ def set_objective(model,reaction,direction='max'):
     model.objective = reaction
     model.objective_direction = direction
 
-def set_bounds(model,reaction,lb=None,ub=None):
+def set_bounds(model,reaction,lb=None,ub=None,fix=None):
     '''
     Updates the bounds of a specific reaction. If None, the bounds are not changed.
 
@@ -57,6 +57,8 @@ def set_bounds(model,reaction,lb=None,ub=None):
             Lower bound. If None, the bound is not updated.
         ub : Float, default=None
             Upper bound. If None, the bound is not updated.
+        fix : Float, default=None
+            Lower AND upper bound are updated. fix is exclusive with lb and ub.
 
     Returns
     -------
@@ -64,6 +66,11 @@ def set_bounds(model,reaction,lb=None,ub=None):
             The given model object is updated.
     '''
 
+    if fix is not None:
+        assert ub is None, "'ub' and 'fix' arguments are exclusive."
+        assert lb is None, "'lb' and 'fix' arguments are exclusive."
+        lb = fix
+        ub = fix
     if lb is None:
         lb = model.reactions.get_by_id(reaction).lower_bound
     if ub is None:
