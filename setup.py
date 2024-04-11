@@ -18,7 +18,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "."},
-    packages=setuptools.find_packages(where="."),
+    packages=setuptools.find_namespace_packages(where="."),
     python_requires=">=3.7",
     include_package_data=True,
     package_data={'': ['data/*.csv']},

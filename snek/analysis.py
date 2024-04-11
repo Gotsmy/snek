@@ -119,8 +119,7 @@ def in_flux(model,solution=None):
     for reaction in model.boundary:
         if solution[reaction.id] < 0:
             flux[reaction.id] = [reaction.name,reaction.id,solution[reaction.id]]
-    flux = pd.DataFrame(flux).T
-    flux.columns = columns=['name','id','flux']
+    flux = pd.DataFrame(flux,index=['name','id','flux']).T
     flux = flux.sort_values('flux',ascending=True)
     return flux
 
@@ -149,8 +148,7 @@ def out_flux(model,solution=None):
     for reaction in model.boundary:
         if solution[reaction.id] > 0:
             flux[reaction.id] = [reaction.name,reaction.id,solution[reaction.id]]
-    flux = pd.DataFrame(flux).T
-    flux.columns = columns=['name','id','flux']
+    flux = pd.DataFrame(flux,index=['name','id','flux']).T
     flux = flux.sort_values('flux',ascending=False)
     return flux
 
