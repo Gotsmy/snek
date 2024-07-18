@@ -1,7 +1,7 @@
 This package includes many additional functions for CobraPy models.
 
-<mark>This package is currently in development/test phase. <br />
-Functionalities may change drastically.</mark>
+<!--- <mark>This package is currently in development/test phase. <br />
+Functionalities may change drastically.</mark> --->
 
 The code is available on <a href="https://github.com/Gotsmy/snek" target="_blank">GitHub</a>.
 
