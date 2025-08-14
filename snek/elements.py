@@ -214,10 +214,12 @@ def dictionary_to_formula(dictionary):
     formula = ''
     for element_name,element_count in sorted(dictionary.items()):
         formula += element_name
+        # Check if element_count is close to an integer
+        # and format it accordingly.
         if np.isclose(element_count,round(element_count),rtol=0):
-            formula += str(round(element_count))
+            formula += f"{element_count:d}"
         else:
-            formula += str(element_count)
+            formula += f"{element_count:f}"
 
     return formula
 
