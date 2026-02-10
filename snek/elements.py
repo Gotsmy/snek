@@ -217,6 +217,7 @@ def dictionary_to_formula(dictionary):
         # Check if element_count is close to an integer
         # and format it accordingly.
         if np.isclose(element_count,round(element_count),rtol=0):
+            element_count = int(element_count)
             formula += f"{element_count:d}"
         else:
             formula += f"{element_count:f}"
